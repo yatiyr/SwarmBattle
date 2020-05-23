@@ -6,7 +6,7 @@ else()
 	cmake_policy(VERSION 3.15)
 endif()
 
-project(SwarmAirDefence VERSION 1.0
+project(SwarmBattle VERSION 1.0
 						DESCRIPTION "This project is developed under context of Ceng580 Multi Agent Systems Course"
 						LANGUAGES CXX)
 
