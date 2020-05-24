@@ -15,8 +15,9 @@ public:
 	StaticObject(b2Vec2 pos, float scale, int wwidth, int wheight) : Object(pos,scale,wwidth,wheight) {
 		bodyDef.type = b2_staticBody;
 	}
-	StaticObject(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight) : Object(window,world, pos,scale,wwidth,wheight) {
+	StaticObject(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, int teamId) : Object(window,world, pos,scale,wwidth,wheight) {
 		bodyDef.type = b2_staticBody;
+		this->teamId = teamId;
 	}
 	virtual ~StaticObject() {
 

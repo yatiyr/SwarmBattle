@@ -55,7 +55,7 @@ private:
 	}
 
 public:
-	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color) : DynamicObject(window,world,pos,scale,wwidth,wheight) {
+	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
 		id = 0;
 		hp = 50;
 		damage = 1;

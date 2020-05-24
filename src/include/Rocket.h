@@ -11,7 +11,7 @@
 
 class Rocket : public Projectile {
 public:
-	Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color) : Projectile(window,world,pos,scale,wwidth, wheight) {
+	Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : Projectile(window,world,pos,scale,wwidth, wheight,teamId) {
 		hp = 100;
 		damage = 10;
 

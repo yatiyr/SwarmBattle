@@ -16,6 +16,7 @@ private:
 
 protected:
 	int id;
+	int teamId;
 	sf::ConvexShape drawShape;
 	sf::RenderWindow *windowPointer;
 
@@ -50,6 +51,7 @@ public:
 		windowPointer = window;
 		body = 0;
 		id = 0;
+		teamId = 0;
 	}
 	virtual ~Object() {
 

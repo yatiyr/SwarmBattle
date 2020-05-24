@@ -15,8 +15,9 @@ public:
 	DynamicObject(b2Vec2 pos, float scale, int wwidth, int wheight) : Object(pos,scale,wwidth,wheight) {
 		bodyDef.type = b2_dynamicBody;
 	}
-	DynamicObject(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight) : Object(window,world, pos,scale,wwidth,wheight) {
+	DynamicObject(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, int teamId) : Object(window,world, pos,scale,wwidth,wheight) {
 		bodyDef.type = b2_dynamicBody;
+		this->teamId = teamId;
 	}
 	virtual ~DynamicObject() {
 

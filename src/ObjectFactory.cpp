@@ -19,13 +19,13 @@ ObjectFactory::ObjectFactory(b2World *world, sf::RenderWindow *window, float sca
 
 ObjectFactory::~ObjectFactory() {}
 
-Rocket* ObjectFactory::createRocket(b2Vec2 pos, sf::Color color) {
-	Rocket *result = new Rocket(window, world, pos, scale, wwidth, wheight, color);
+Rocket* ObjectFactory::createRocket(b2Vec2 pos, sf::Color color, int teamId) {
+	Rocket *result = new Rocket(window, world, pos, scale, wwidth, wheight, color, teamId);
 	return result;
 }
 
-Robot* ObjectFactory::createRobot(b2Vec2 pos, sf::Color color) {
-	Robot *result = new Robot(window, world, pos, scale, wwidth, wheight, color);
+Robot* ObjectFactory::createRobot(b2Vec2 pos, sf::Color color, int teamId) {
+	Robot *result = new Robot(window, world, pos, scale, wwidth, wheight, color, teamId);
 	return result;
 }
 

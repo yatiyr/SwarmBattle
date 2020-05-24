@@ -132,25 +132,23 @@ void Engine::drawRobots() {
 void Engine::run() {
 
 	  sf::Texture GroundTexture;
-	  sf::Texture BoxTexture;
 
 	  // Sprites
 	  sf::Sprite GroundSprite;
-	  sf::Sprite BodySprite;
 	  GroundSprite.setTexture(GroundTexture);
 	  GroundSprite.setColor(sf::Color(0, 0, 0, 255));
 	  GroundSprite.setTextureRect(sf::IntRect(0, 0, 12000 * scale, 2 * scale));
 	  GroundSprite.setOrigin(6000 * scale, 1 * scale); // origin in middle
 
-	  for(int i=0;i<100;i++) {
-		  std::cout << i << std::endl;
-		  Robot *r = objectFactory->createRobot(b2Vec2(100.f*i,0*i), sf::Color::Black);
-		  objects.push_back(r);
-		  robots.push_back(r);
-	  }
+//	  for(int i=0;i<100;i++) {
+//		  std::cout << i << std::endl;
+//		  Robot *r = objectFactory->createRobot(b2Vec2(100.f*i,0*i), sf::Color::Black);
+//		  objects.push_back(r);
+//		  robots.push_back(r);
+//	  }
 
 
-	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
+//	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
 
 	  // Define the ground body.
 	  b2BodyDef groundBodyDef;
@@ -231,7 +229,6 @@ void Engine::run() {
 	    window->draw(GroundSprite);
 
 	    drawRobots();
-	    rocket1->draw(scale,wwidth,wheight);
 
 		window->display();
 
