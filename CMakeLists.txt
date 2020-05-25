@@ -57,7 +57,6 @@ set_target_properties(sfmlWindow PROPERTIES
 set(SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp"
 			"${CMAKE_SOURCE_DIR}/src/Engine.cpp"
 			"${CMAKE_SOURCE_DIR}/src/ObjectFactory.cpp"
-			"${CMAKE_SOURCE_DIR}/src/Base.cpp"
 			"${CMAKE_SOURCE_DIR}/src/include/DynamicObject.h"
 			"${CMAKE_SOURCE_DIR}/src/include/Engine.h"
 			"${CMAKE_SOURCE_DIR}/src/include/Object.h"

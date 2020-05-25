@@ -114,6 +114,11 @@ void Engine::addRobot(Robot *r) {
 	robots.push_back(r);
 }
 
+void Engine::addBase(Base *b) {
+	objects.push_back(b);
+	bases.push_back(b);
+}
+
 void Engine::actRobots() {
 
 	for(unsigned int i=0;i<robots.size();i++) {
@@ -125,6 +130,12 @@ void Engine::drawRobots() {
 
 	for(unsigned int i=0;i<robots.size();i++) {
 		robots[i]->draw(scale,wwidth,wheight);
+	}
+}
+
+void Engine::drawBases() {
+	for(unsigned int i=0;i<bases.size();i++) {
+		bases[i]->draw(scale,wwidth,wheight);
 	}
 }
 
@@ -142,13 +153,20 @@ void Engine::run() {
 
 //	  for(int i=0;i<100;i++) {
 //		  std::cout << i << std::endl;
-//		  Robot *r = objectFactory->createRobot(b2Vec2(100.f*i,0*i), sf::Color::Black);
+//		  Robot *r = objectFactory->createRobot(b2Vec2(100.f*i,0*i), sf::Color::Black,1);
 //		  objects.push_back(r);
 //		  robots.push_back(r);
 //	  }
 
 
 //	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
+
+	  Robot *r = objectFactory->createRobot(b2Vec2(10.f,-20.f),sf::Color::Black,1);
+	  objects.push_back(r);
+	  robots.push_back(r);
+	  Base *base = objectFactory->createBase(b2Vec2(0.f,-185.f), sf::Color::Black, 1);
+	  objects.push_back(base);
+	  bases.push_back(base);
 
 	  // Define the ground body.
 	  b2BodyDef groundBodyDef;
@@ -229,6 +247,7 @@ void Engine::run() {
 	    window->draw(GroundSprite);
 
 	    drawRobots();
+	    drawBases();
 
 		window->display();
 

@@ -9,6 +9,7 @@
 #include <box2d/box2d.h>
 #include "Robot.h"
 #include "Rocket.h"
+#include "Base.h"
 
 #ifndef OBJECTFACTORY_H_
 #define OBJECTFACTORY_H_
@@ -25,6 +26,7 @@ public:
 	ObjectFactory(b2World *world, sf::RenderWindow *window, float scale, int wwidth, int wheight);
 	Rocket *createRocket(b2Vec2 pos, sf::Color color, int teamId);
 	Robot *createRobot(b2Vec2 pos, sf::Color color, int teamId);
+	Base *createBase(b2Vec2 pos, sf::Color color, int teamId);
 	virtual ~ObjectFactory();
 };
 

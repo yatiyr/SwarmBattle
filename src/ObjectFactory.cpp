@@ -29,3 +29,8 @@ Robot* ObjectFactory::createRobot(b2Vec2 pos, sf::Color color, int teamId) {
 	return result;
 }
 
+Base* ObjectFactory::createBase(b2Vec2 pos, sf::Color color, int teamId) {
+	Base *result = new Base(window, world, pos, scale, wwidth, wheight, color, teamId);
+	return result;
+}
+

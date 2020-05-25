@@ -14,6 +14,7 @@
 #include "ObjectFactory.h"
 #include "Robot.h"
 #include "Rocket.h"
+#include "Base.h"
 
 #ifndef ENGINE_H_
 #define ENGINE_H_
@@ -41,6 +42,7 @@ private:
 
 	std::vector<Object*> objects;
 	std::vector<Robot*> robots;
+	std::vector<Base*> bases;
 
 	void readMainSettings();
 
@@ -74,6 +76,8 @@ public:
 	void addObject(Object *obj);
 	void actObjects();
 	void drawObjects();
+	void addBase(Base *b);
+	void drawBases();
 	const float getScale() { return scale; }
 	const float getWwidth() { return wwidth; }
 	const float getWheight() { return wheight; }
