@@ -85,16 +85,28 @@ public:
 		fixtureDef.shape = &shape;
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 30.f;
-		fixtureDef.filter.categoryBits = entityCategory::ROBOT;
-		fixtureDef.filter.maskBits = entityCategory::OTHER; //| entityCategory::ROBOT;
+//		fixtureDef.filter.maskBits = entityCategory::OTHER; //| entityCategory::ROBOT;
+
+		if(teamId == 0) {
+			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T1;
+			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T1;
+			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T1;
+			fixtureDef.filter.maskBits = entityCategory::OTHER;
+		}
+		else if(teamId == 1) {
+			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T2;
+			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T2;
+			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T2;
+			fixtureDef.filter.maskBits = entityCategory::OTHER;
+		}
+
 		body->CreateFixture(&fixtureDef);
 
 		sensorShape.m_radius = 32.0f;
 		sensorFixtureDef.shape = &sensorShape;
 		sensorFixtureDef.isSensor = true;
-		sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR;
-		sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR;
 		body->CreateFixture(&sensorFixtureDef);
+
 
 
 

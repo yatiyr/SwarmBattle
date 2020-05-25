@@ -9,10 +9,20 @@
 #define SRC_INCLUDE_BASE_H_
 
 #include <StaticObject.h>
+#include <ObjectEnums.h>
 #include <iostream>
 
 #define EPSILON 0.0005
 #define DEGTORAD b2_pi/180
+
+enum BState {
+	GunSteady,
+	Reloading,
+	Adjusting,
+	GunFiring
+};
+
+class ObjectFactory;
 
 class Base : public StaticObject {
 private:
@@ -26,6 +36,10 @@ private:
 	b2PolygonShape gunShape;
 	b2FixtureDef gunFixtureDef;
 	b2RevoluteJoint *baseJoint;
+
+	Rocket *reloadedRocket = NULL;
+
+	BState state;
 
 public:
 	Base(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : StaticObject(window,world,pos,scale,wwidth,wheight,teamId) {
@@ -49,7 +63,7 @@ public:
 		gunDrawShape.setPoint(3, sf::Vector2f(3.f * scale, 0.f * scale));
 		gunDrawShape.setOrigin(1.5f * scale, 4.5f * scale);
 		gunDrawShape.setFillColor(sf::Color::Transparent);
-		gunDrawShape.setOutlineThickness(1.f);
+		gunDrawShape.setOutlineThickness(0.6f);
 		gunDrawShape.setOutlineColor(sf::Color::Black);
 
 		gunBodyDef.position.Set(pos.x,pos.y + 34.f);
@@ -64,6 +78,7 @@ public:
 		gunFixtureDef.shape = &gunShape;
 		gunFixtureDef.density = 1.0f;
 		gunFixtureDef.friction = 30.f;
+		gunFixtureDef.isSensor = true;
 		// collision filterlar gelecek buraya
 		gunBody->CreateFixture(&gunFixtureDef);
 
@@ -80,7 +95,14 @@ public:
 		fixtureDef.shape = &shape;
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 30.f;
-		// collision filterlar gelecek
+
+		if(teamId == 0) {
+			fixtureDef.filter.categoryBits = entityCategory::BASE_T1;
+		}
+		else if(teamId == 1) {
+			fixtureDef.filter.categoryBits = entityCategory::BASE_T2;
+		}
+
 		body->CreateFixture(&fixtureDef);
 
 		// Joint
@@ -97,6 +119,8 @@ public:
 		revoluteJointDef.maxMotorTorque = 20;
 		revoluteJointDef.motorSpeed = 360 * DEGTORAD;
 		baseJoint = (b2RevoluteJoint*) world->CreateJoint(&revoluteJointDef);
+
+		state = BState::Reloading;
 
 	}
 
@@ -120,12 +144,34 @@ public:
 		windowPointer->draw(drawShape);
 		windowPointer->draw(gunDrawShape);
 
-		std::cout << pos.x << " " << pos.y << std::endl;
-
 	}
 
 	void act() {
 
+	}
+
+	b2Body *getGunBody() {
+			return gunBody;
+	}
+
+	BState getState() {
+		return state;
+	}
+
+	void setState(BState s) {
+		state = s;
+	}
+
+	void setReloadedRocket(Rocket *r) {
+		reloadedRocket = r;
+	}
+
+	Rocket *getReloadedRocket() {
+		return reloadedRocket;
+	}
+
+	int getTeamId() {
+		return teamId;
 	}
 	virtual ~Base() {}
 };

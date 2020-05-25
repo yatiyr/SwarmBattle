@@ -36,6 +36,9 @@ private:
 	bool moving;
 	float zoom = 1;
 
+	float gunAng1;
+	float gunAng2;
+
 	b2World *world;
 
 	ObjectFactory *objectFactory;
@@ -43,6 +46,7 @@ private:
 	std::vector<Object*> objects;
 	std::vector<Robot*> robots;
 	std::vector<Base*> bases;
+	std::vector<Rocket*> rockets;
 
 	void readMainSettings();
 
@@ -66,6 +70,10 @@ private:
 		return b2Vec2( ((v.x - wwidth/2)/scale), -(v.y - wheight/4)/scale);
 	}
 
+	void handleBase(Base *b);
+	void handleBases();
+	void handleRocketDrags();
+
 public:
 	Engine();
 	virtual ~Engine();
@@ -78,6 +86,9 @@ public:
 	void drawObjects();
 	void addBase(Base *b);
 	void drawBases();
+	void addRocket(Rocket *r);
+	void drawRockets();
+
 	const float getScale() { return scale; }
 	const float getWwidth() { return wwidth; }
 	const float getWheight() { return wheight; }

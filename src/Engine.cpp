@@ -7,6 +7,7 @@
 
 #include "Engine.h"
 #include "SensorContactListener.h"
+#include <math.h>
 
 SensorContactListener listener;
 
@@ -95,6 +96,11 @@ void Engine::addObject(Object *obj) {
 
 }
 
+void Engine::addRocket(Rocket *r) {
+	objects.push_back(r);
+	rockets.push_back(r);
+}
+
 void Engine::actObjects() {
 
 	for(unsigned int i=0;i<objects.size();i++) {
@@ -106,6 +112,12 @@ void Engine::drawObjects() {
 
 	for(unsigned int i=0;i<objects.size();i++) {
 		objects[i]->draw(scale,wwidth,wheight);
+	}
+}
+
+void Engine::drawRockets() {
+	for(unsigned int i=0;i<rockets.size();i++) {
+		rockets[i]->draw(scale,wwidth,wheight);
 	}
 }
 
@@ -139,6 +151,102 @@ void Engine::drawBases() {
 	}
 }
 
+void Engine::handleRocketDrags() {
+	for(unsigned int i=0;i<rockets.size();i++) {
+		rockets[i]->handleDrag();
+	}
+}
+void Engine::handleBase(Base *b) {
+	BState gunState = b->getState();
+	if(gunState == BState::GunSteady) {
+
+	}
+	else if(gunState == BState::Reloading) {
+
+		b2Body *gunBody = b->getGunBody();
+		b2Vec2 gunPos = gunBody->GetPosition();
+		float gunAngle = gunBody->GetAngle();
+		if((180/b2_pi)*gunAngle < 1.f && (180/b2_pi)*gunAngle > -1.f) {
+			Rocket *rocket1;
+			if(b->getTeamId() == 0) {
+				rocket1 = objectFactory->createRocket(b2Vec2(gunPos.x,gunPos.y + 5.f),sf::Color::Blue,b->getTeamId());
+			}
+			else if(b->getTeamId() == 1) {
+				rocket1 = objectFactory->createRocket(b2Vec2(gunPos.x,gunPos.y + 5.f),sf::Color::Red,b->getTeamId());
+			}
+			addRocket(rocket1);
+			b->setReloadedRocket(rocket1);
+			b->setState(BState::Adjusting);
+
+			if(b->getTeamId() == 0) {
+				srand(time(NULL));
+				gunAng1 = rand()%55;
+				gunAng1 += 15;
+			}
+			else if(b->getTeamId() == 1) {
+				srand(time(NULL) + 10000);
+				gunAng2 = rand()%55;
+				gunAng2 += 15;
+			}
+
+		}
+		else {
+			if(gunAngle < 0) {
+				gunBody->SetAngularVelocity(0.6f);
+			}
+			else if(gunAngle > 0) {
+				gunBody->SetAngularVelocity(-0.6f);
+			}
+		}
+	}
+	else if(gunState == BState::GunFiring) {
+		Rocket *reloadedRocket = b->getReloadedRocket();
+		b2Body *rb = reloadedRocket->getBody();
+		float rbAngle = rb->GetAngle();
+		rb->SetEnabled(true);
+		b2Vec2 force(-sin(rbAngle),cos(rbAngle));
+		force *= 1000000;
+		rb->ApplyLinearImpulseToCenter(force,true);
+		b->setState(BState::Reloading);
+	}
+	else if(gunState == BState::Adjusting) {
+		Rocket *reloadedRocket = b->getReloadedRocket();
+		b2Body *rb = reloadedRocket->getBody();
+		b2Body *gunBody = b->getGunBody();
+		float gunAngle = gunBody->GetAngle();
+		b2Vec2 gunPos = gunBody->GetPosition();
+		b2Vec2 rPos = rb->GetPosition();
+		b2Vec2 transformedPos = b2Vec2(gunPos.x - sin(gunAngle)*5,gunPos.y + cos(gunAngle)*5);
+		reloadedRocket->getBody()->SetTransform(transformedPos,gunAngle);
+		reloadedRocket->getBody()->SetEnabled(false);
+
+
+		if(b->getTeamId() == 0) {
+			if((180/b2_pi)*gunAngle >= -gunAng1 - 0.6f && (180/b2_pi)*gunAngle <= -gunAng1 + 0.6f ) {
+				b->setState(BState::GunFiring);
+			}
+			else {
+				gunBody->SetAngularVelocity(-0.3f);
+			}
+		}
+		else if(b->getTeamId() == 1) {
+			if((180/b2_pi)*gunAngle <= gunAng2 + 0.6f && (180/b2_pi)*gunAngle >= gunAng2 - 0.6f ) {
+				b->setState(BState::GunFiring);
+			}
+			else {
+				gunBody->SetAngularVelocity(0.3f);
+			}
+		}
+
+//		std::cout << gunPos.x << " " << cos(gunAngle) << " " << (180/b2_pi)*gunAngle << std::endl;
+	}
+}
+
+void Engine::handleBases() {
+	for(unsigned int i=0;i<bases.size();i++) {
+		handleBase(bases[i]);
+	}
+}
 
 void Engine::run() {
 
@@ -161,12 +269,16 @@ void Engine::run() {
 
 //	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
 
-	  Robot *r = objectFactory->createRobot(b2Vec2(10.f,-20.f),sf::Color::Black,1);
+	  Robot *r = objectFactory->createRobot(b2Vec2(10.f,-5.f),sf::Color::Black,0);
 	  objects.push_back(r);
 	  robots.push_back(r);
-	  Base *base = objectFactory->createBase(b2Vec2(0.f,-185.f), sf::Color::Black, 1);
+	  Base *base = objectFactory->createBase(b2Vec2(0.f,-185.f), sf::Color::Blue, 0);
 	  objects.push_back(base);
 	  bases.push_back(base);
+
+	  Base *base2 = objectFactory->createBase(b2Vec2(1400.f,-185.f), sf::Color::Red,1);
+	  objects.push_back(base2);
+	  bases.push_back(base2);
 
 	  // Define the ground body.
 	  b2BodyDef groundBodyDef;
@@ -234,6 +346,8 @@ void Engine::run() {
 
 
 		actRobots();
+		handleBases();
+		handleRocketDrags();
 		window->clear(windowColor);
 		world->Step(timeStep, velocityIterations, positionIterations);
 
@@ -248,6 +362,8 @@ void Engine::run() {
 
 	    drawRobots();
 	    drawBases();
+	    drawRockets();
+
 
 		window->display();
 
