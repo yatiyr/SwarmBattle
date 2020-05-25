@@ -9,6 +9,7 @@
 #define SRC_INCLUDE_BASE_H_
 
 #include <StaticObject.h>
+#include "Engine.h"
 
 #define EPSILON 0.0005
 #define DEGTORAD b2_pi/180
@@ -25,6 +26,7 @@ private:
 	b2PolygonShape gunShape;
 	b2FixtureDef gunFixtureDef;
 	b2RevoluteJoint *baseJoint;
+
 
 public:
 	Base(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : StaticObject(window,world,pos,scale,wwidth,wheight,teamId) {

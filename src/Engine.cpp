@@ -139,6 +139,11 @@ void Engine::drawBases() {
 	}
 }
 
+void Engine::addRocket(Rocket *r) {
+	objects.push_back(r);
+	rockets.push_back(r);
+}
+
 
 void Engine::run() {
 
