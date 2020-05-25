@@ -39,10 +39,10 @@ private:
 	b2World *world;
 
 	ObjectFactory *objectFactory;
+
 	std::vector<Object*> objects;
 	std::vector<Robot*> robots;
 	std::vector<Base*> bases;
-	std::vector<Rocket*> rockets;
 
 	void readMainSettings();
 
@@ -78,9 +78,6 @@ public:
 	void drawObjects();
 	void addBase(Base *b);
 	void drawBases();
-
-	void addRocket(Rocket *r);
-	void drawRockets();
 	const float getScale() { return scale; }
 	const float getWwidth() { return wwidth; }
 	const float getWheight() { return wheight; }
