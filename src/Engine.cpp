@@ -192,10 +192,10 @@ void Engine::handleBase(Base *b) {
 		}
 		else {
 			if(gunAngle < 0) {
-				gunBody->SetAngularVelocity(0.6f);
+				gunBody->SetAngularVelocity(0.1f);
 			}
 			else if(gunAngle > 0) {
-				gunBody->SetAngularVelocity(-0.6f);
+				gunBody->SetAngularVelocity(-0.1f);
 			}
 		}
 	}
@@ -205,7 +205,7 @@ void Engine::handleBase(Base *b) {
 		float rbAngle = rb->GetAngle();
 		rb->SetEnabled(true);
 		b2Vec2 force(-sin(rbAngle),cos(rbAngle));
-		force *= 1000000;
+		force *= 10000000;
 		rb->ApplyLinearImpulseToCenter(force,true);
 		b->setState(BState::Reloading);
 	}

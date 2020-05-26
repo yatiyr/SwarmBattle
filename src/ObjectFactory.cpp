@@ -34,3 +34,10 @@ Base* ObjectFactory::createBase(b2Vec2 pos, sf::Color color, int teamId) {
 	return result;
 }
 
+Particle* ObjectFactory::createParticle(b2Vec2 pos, sf::Color color, int teamId) {
+	Particle *result = new Particle(window, world, pos, scale, wwidth, wheight, color ,teamId);
+	return result;
+}
+
+
+

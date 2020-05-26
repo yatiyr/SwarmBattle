@@ -17,7 +17,8 @@ enum entityCategory {
 	ROCKET_T1 = 0x0020,
 	ROCKET_T2 = 0x0040,
 	BASE_T1 = 0x0080,
-	BASE_T2 = 0x0100
+	BASE_T2 = 0x0100,
+	PARTICLE = 0x0200
 };
 
 

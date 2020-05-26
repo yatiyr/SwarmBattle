@@ -10,6 +10,7 @@
 #include "Robot.h"
 #include "Rocket.h"
 #include "Base.h"
+#include "Particle.h"
 
 #ifndef OBJECTFACTORY_H_
 #define OBJECTFACTORY_H_
@@ -27,6 +28,7 @@ public:
 	Rocket *createRocket(b2Vec2 pos, sf::Color color, int teamId);
 	Robot *createRobot(b2Vec2 pos, sf::Color color, int teamId);
 	Base *createBase(b2Vec2 pos, sf::Color color, int teamId);
+	Particle *createParticle(b2Vec2 pos, sf::Color color, int teamId);
 	virtual ~ObjectFactory();
 };
 

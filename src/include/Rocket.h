@@ -25,6 +25,7 @@ public:
 		drawShape.setFillColor(color);
 
 		body = worldPointer->CreateBody(&bodyDef);
+		body->SetUserData(this);
 
 		b2Vec2 verArray[5];
 		verArray[0].Set(-1.f,-8.f);
@@ -34,13 +35,14 @@ public:
 		verArray[4].Set(-1.f,0.f);
 		shape.Set(verArray, 5);
 		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
+		fixtureDef.density = 10.0f;
 		fixtureDef.friction = 30.f;
 		if(teamId == 0) {
 			fixtureDef.filter.categoryBits = entityCategory::ROCKET_T1;
 			fixtureDef.filter.maskBits = entityCategory::BASE_T2 |
 										 entityCategory::ROCKET_T2 |
 										 entityCategory::ROBOT_T2 |
+										 entityCategory::PARTICLE |
 										 entityCategory::OTHER;
 		}
 		else if(teamId == 1) {
@@ -48,6 +50,7 @@ public:
 			fixtureDef.filter.maskBits = entityCategory::BASE_T1 |
 										 entityCategory::ROCKET_T1 |
 										 entityCategory::ROBOT_T1 |
+										 entityCategory::PARTICLE |
 										 entityCategory::OTHER;
 		}
 		body->CreateFixture(&fixtureDef);
@@ -56,7 +59,7 @@ public:
 		b2FixtureDef rocketTipFixtureDef;
 
 		rocketTip.m_radius = 1.0f;
-		rocketTipFixtureDef.density = 0.1f;
+		rocketTipFixtureDef.density = 1.f;
 		rocketTipFixtureDef.friction = 30.f;
 		rocketTipFixtureDef.shape = &rocketTip;
 		rocketTipFixtureDef.isSensor = false;
@@ -89,8 +92,9 @@ public:
 		windowPointer->draw(drawShape);
 	}
 	virtual ~Rocket() {
-
+		body->GetWorld()->DestroyBody(body);
 	}
+
 };
 
 #endif /* ROCKET_H_ */

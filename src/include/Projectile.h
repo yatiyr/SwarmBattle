@@ -24,6 +24,19 @@ public:
 	virtual ~Projectile() {
 
 	}
+
+	void setHp(float h) {
+		hp = h;
+	}
+
+	float getHp() {
+		return hp;
+
+	}
+
+	float getDamage() {
+		return damage;
+	}
 };
 
 #endif /* PROJECTILE_H_ */

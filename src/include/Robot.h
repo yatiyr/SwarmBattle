@@ -91,13 +91,15 @@ public:
 			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T1;
 			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T1;
 			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T1;
-			fixtureDef.filter.maskBits = entityCategory::OTHER;
+			fixtureDef.filter.maskBits = entityCategory::OTHER |
+										 entityCategory::PARTICLE;
 		}
 		else if(teamId == 1) {
 			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T2;
 			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T2;
 			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T2;
-			fixtureDef.filter.maskBits = entityCategory::OTHER;
+			fixtureDef.filter.maskBits = entityCategory::OTHER |
+										 entityCategory::PARTICLE;
 		}
 
 		body->CreateFixture(&fixtureDef);
@@ -558,7 +560,7 @@ public:
 
 	}
 	virtual ~Robot() {
-
+		body->GetWorld()->DestroyBody(body);
 	}
 };
 
