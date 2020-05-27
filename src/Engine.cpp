@@ -173,6 +173,11 @@ void Engine::clearDeadBodies() {
 	std::set<Particle*> deadParticles;
 	std::set<Base*> deadBases;
 
+	if(particles.size() >= 750) {
+		std::vector<Particle*>::iterator itParticle = particles.begin();
+		particles.erase(itParticle);
+	}
+
 	// Traverse robots
 	for(unsigned int i=0;i<robots.size();i++) {
 
@@ -317,10 +322,10 @@ void Engine::handleBase(Base *b) {
 		}
 		else {
 			if(gunAngle < 0) {
-				gunBody->SetAngularVelocity(0.5f);
+				gunBody->SetAngularVelocity(0.7f);
 			}
 			else if(gunAngle > 0) {
-				gunBody->SetAngularVelocity(-0.5f);
+				gunBody->SetAngularVelocity(-0.7f);
 			}
 		}
 	}
@@ -351,7 +356,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(-0.5f);
+				gunBody->SetAngularVelocity(-0.7f);
 			}
 		}
 		else if(b->getTeamId() == 1) {
@@ -359,7 +364,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(0.5f);
+				gunBody->SetAngularVelocity(0.7f);
 			}
 		}
 

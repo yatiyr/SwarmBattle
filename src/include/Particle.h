@@ -16,7 +16,7 @@ private:
 public:
 	Particle(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : Projectile(window,world,pos,scale,wwidth, wheight,teamId) {
 
-		hp = 0.35f;
+		hp = 0.15f;
 		damage = 0.1;
 		bColor = color;
 
@@ -43,7 +43,7 @@ public:
 		verArray[3].Set(0.f, 0.56f);
 		shape.Set(verArray, 5);
 		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.f;
+		fixtureDef.density = 0.1f;
 		fixtureDef.friction = 1.f;
 		fixtureDef.restitution = 0.1f;
 

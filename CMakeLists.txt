@@ -10,6 +10,8 @@ project(SwarmBattle VERSION 1.0
 						DESCRIPTION "This project is developed under context of Ceng580 Multi Agent Systems Course"
 						LANGUAGES CXX)
 
+set(CMAKE_CXX_FLAGS "-O3")
+
 add_library(box2D STATIC IMPORTED)
 add_library(sfmlAudio STATIC IMPORTED)
 add_library(sfmlGraphics STATIC IMPORTED)

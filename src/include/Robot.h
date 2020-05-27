@@ -519,20 +519,6 @@ public:
 
 	void draw(float scale, int wwidth, int wheight) {
 
-		int drawFlag = 0;
-
-		for(int i=0;i<sensedRobots.size();i++) {
-			if(isRobotInViewField(sensedRobots[i]))
-				drawFlag = 1;
-		}
-
-		if(drawFlag == 1) {
-			drawShape.setFillColor(sf::Color::Red);
-		}
-		else {
-			drawShape.setFillColor(sf::Color::Black);
-		}
-
 		b2Vec2 pos = body->GetPosition();
 		float angle = body->GetAngle();
 		pos = convertWorldToScreen(pos, scale, wwidth, wheight);
