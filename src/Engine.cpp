@@ -8,6 +8,8 @@
 #include "Engine.h"
 #include "SensorContactListener.h"
 #include <math.h>
+#include <algorithm>
+#include <set>
 
 SensorContactListener listener;
 
@@ -97,7 +99,6 @@ void Engine::addObject(Object *obj) {
 }
 
 void Engine::addRocket(Rocket *r) {
-	objects.push_back(r);
 	rockets.push_back(r);
 }
 
@@ -122,12 +123,10 @@ void Engine::drawRockets() {
 }
 
 void Engine::addRobot(Robot *r) {
-	objects.push_back(r);
 	robots.push_back(r);
 }
 
 void Engine::addBase(Base *b) {
-	objects.push_back(b);
 	bases.push_back(b);
 }
 
@@ -151,9 +150,135 @@ void Engine::drawBases() {
 	}
 }
 
+void Engine::drawParticles() {
+	for(unsigned int i=0;i<particles.size();i++) {
+		particles[i]->draw(scale,wwidth,wheight);
+	}
+}
+
+void Engine::addParticle(Particle* p) {
+	particles.push_back(p);
+}
+
 void Engine::handleRocketDrags() {
 	for(unsigned int i=0;i<rockets.size();i++) {
 		rockets[i]->handleDrag();
+	}
+}
+
+void Engine::clearDeadBodies() {
+
+	std::set<Robot*> deadRobots;
+	std::set<Rocket*> deadRockets;
+	std::set<Particle*> deadParticles;
+	std::set<Base*> deadBases;
+
+	// Traverse robots
+	for(unsigned int i=0;i<robots.size();i++) {
+
+		if(robots[i]->getHp() <= 0) {
+
+			for(int j=0;j<12;j++) {
+				float angle = (j / (float)12) * 360 * DEGTORAD;
+				b2Vec2 rayDir(sinf(angle), cosf(angle));
+
+				Particle *p = objectFactory->createParticle(robots[i]->getBody()->GetPosition(),robots[i]->getColor(),robots[i]->getTeamId());
+				addParticle(p);
+				p->getBody()->SetLinearVelocity(100 * rayDir);
+			}
+
+			deadRobots.insert(robots[i]);
+		}
+	}
+
+	for(unsigned int i=0;i<rockets.size();i++) {
+
+		if(rockets[i]->getHp() <= 0) {
+			std::cout << rockets[i]->getHp() << std::endl;
+			for(int j=0;j<288;j++) {
+				float angle = (j / (float)72) * 360 * DEGTORAD;
+				b2Vec2 rayDir(sinf(angle), cosf(angle));
+
+				Particle *p = objectFactory->createParticle(rockets[i]->getBody()->GetPosition(),rockets[i]->getColor(),rockets[i]->getTeamId());
+				addParticle(p);
+				p->getBody()->SetLinearVelocity(100 * rayDir);
+			}
+
+			deadRockets.insert(rockets[i]);
+		}
+	}
+
+	for(unsigned int i=0;i<bases.size();i++) {
+
+		if(bases[i]->getHp() <= 0) {
+
+			for(int j=0;j<500;j++) {
+				float angle = (j / (float)500) * 360 * DEGTORAD;
+				b2Vec2 rayDir(sinf(angle), cosf(angle));
+
+				Particle *p = objectFactory->createParticle(bases[i]->getBody()->GetPosition(),bases[i]->getColor(),bases[i]->getTeamId());
+				addParticle(p);
+				p->getBody()->SetLinearVelocity(100 * rayDir);
+			}
+
+			deadBases.insert(bases[i]);
+
+		}
+	}
+
+	for(unsigned int i=0;i<particles.size();i++) {
+
+		std::cout << particles.size() << std::endl;
+		if(particles[i]->getHp() <= 0) {
+			deadParticles.insert(particles[i]);
+		}
+	}
+
+	std::set<Robot*>::iterator itRobot = deadRobots.begin();
+	std::set<Robot*>::iterator endRobot = deadRobots.end();
+
+	std::set<Rocket*>::iterator itRocket = deadRockets.begin();
+	std::set<Rocket*>::iterator endRocket = deadRockets.end();
+
+	std::set<Particle*>::iterator itParticle = deadParticles.begin();
+	std::set<Particle*>::iterator endParticle = deadParticles.end();
+
+	std::set<Base*>::iterator itBase = deadBases.begin();
+	std::set<Base*>::iterator endBase = deadBases.end();
+
+
+	// Clear dead bodies from lists and the world
+	for(;itRobot!=endRobot; ++itRobot) {
+		Robot* deadRobot = *itRobot;
+		delete deadRobot;
+		std::vector<Robot*>::iterator it = std::find(robots.begin(),robots.end(),deadRobot);
+		if(it != robots.end()) {
+			robots.erase(it);
+		}
+	}
+	for(;itRocket!=endRocket; ++itRocket) {
+		Rocket* deadRocket = *itRocket;
+		delete deadRocket;
+		std::vector<Rocket*>::iterator it = std::find(rockets.begin(),rockets.end(),deadRocket);
+		if(it != rockets.end()) {
+			rockets.erase(it);
+		}
+	}
+	for(;itParticle!=endParticle; ++itParticle) {
+		Particle* deadParticle = *itParticle;
+		delete deadParticle;
+		std::vector<Particle*>::iterator it = std::find(particles.begin(),particles.end(),deadParticle);
+		if(it != particles.end()) {
+			particles.erase(it);
+		}
+	}
+	for(;itBase!=endBase; ++itBase) {
+		Base* deadBase = *itBase;
+		delete deadBase;
+		std::vector<Base*>::iterator it = std::find(bases.begin(),bases.end(),deadBase);
+		if(it != bases.end()) {
+			bases.erase(it);
+		}
 	}
 }
 void Engine::handleBase(Base *b) {
@@ -192,10 +317,10 @@ void Engine::handleBase(Base *b) {
 		}
 		else {
 			if(gunAngle < 0) {
-				gunBody->SetAngularVelocity(0.1f);
+				gunBody->SetAngularVelocity(0.5f);
 			}
 			else if(gunAngle > 0) {
-				gunBody->SetAngularVelocity(-0.1f);
+				gunBody->SetAngularVelocity(-0.5f);
 			}
 		}
 	}
@@ -226,7 +351,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(-0.3f);
+				gunBody->SetAngularVelocity(-0.5f);
 			}
 		}
 		else if(b->getTeamId() == 1) {
@@ -234,7 +359,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(0.3f);
+				gunBody->SetAngularVelocity(0.5f);
 			}
 		}
 
@@ -259,25 +384,16 @@ void Engine::run() {
 	  GroundSprite.setTextureRect(sf::IntRect(0, 0, 12000 * scale, 2 * scale));
 	  GroundSprite.setOrigin(6000 * scale, 1 * scale); // origin in middle
 
-//	  for(int i=0;i<100;i++) {
-//		  std::cout << i << std::endl;
-//		  Robot *r = objectFactory->createRobot(b2Vec2(100.f*i,0*i), sf::Color::Black,1);
-//		  objects.push_back(r);
-//		  robots.push_back(r);
-//	  }
 
 
 //	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
 
 	  Robot *r = objectFactory->createRobot(b2Vec2(10.f,-5.f),sf::Color::Black,0);
-	  objects.push_back(r);
 	  robots.push_back(r);
 	  Base *base = objectFactory->createBase(b2Vec2(0.f,-185.f), sf::Color::Blue, 0);
-	  objects.push_back(base);
 	  bases.push_back(base);
 
 	  Base *base2 = objectFactory->createBase(b2Vec2(1400.f,-185.f), sf::Color::Red,1);
-	  objects.push_back(base2);
 	  bases.push_back(base2);
 
 	  // Define the ground body.
@@ -346,6 +462,8 @@ void Engine::run() {
 
 
 		actRobots();
+
+		clearDeadBodies();
 		handleBases();
 		handleRocketDrags();
 		window->clear(windowColor);
@@ -363,6 +481,7 @@ void Engine::run() {
 	    drawRobots();
 	    drawBases();
 	    drawRockets();
+	    drawParticles();
 
 
 		window->display();

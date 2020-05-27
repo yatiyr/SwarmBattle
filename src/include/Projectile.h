@@ -11,9 +11,6 @@
 #define PROJECTILE_H_
 
 class Projectile : public DynamicObject {
-protected:
-	float hp;
-	float damage;
 
 public:
 	Projectile(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, int teamId) : DynamicObject(window,world,pos,scale,wwidth,wheight, teamId) {
@@ -23,19 +20,6 @@ public:
 
 	virtual ~Projectile() {
 
-	}
-
-	void setHp(float h) {
-		hp = h;
-	}
-
-	float getHp() {
-		return hp;
-
-	}
-
-	float getDamage() {
-		return damage;
 	}
 };
 

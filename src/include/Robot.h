@@ -48,6 +48,8 @@ private:
 	b2CircleShape sensorShape;
 	b2FixtureDef sensorFixtureDef;
 
+	sf::Color bColor;
+
 	std::vector<Robot*> sensedRobots;
 
 	float dotProduct(b2Vec2 vec1, b2Vec2 vec2) {
@@ -57,9 +59,10 @@ private:
 public:
 	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
 		id = 0;
-		hp = 50;
-		damage = 1;
+		hp = 500;
+		damage = 2;
 		fuel = 100;
+		bColor = color;
 
 		drawShape.setFillColor(color);
 		drawShape.setPointCount(6);
@@ -85,7 +88,6 @@ public:
 		fixtureDef.shape = &shape;
 		fixtureDef.density = 1.0f;
 		fixtureDef.friction = 30.f;
-//		fixtureDef.filter.maskBits = entityCategory::OTHER; //| entityCategory::ROBOT;
 
 		if(teamId == 0) {
 			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T1;
@@ -124,6 +126,10 @@ public:
 
 	}
 
+	sf::Color getColor() {
+		return bColor;
+	}
+
 	float getHp() { return hp; }
 	float getDamage() { return damage; }
 	float getFuel() { return damage; }
@@ -131,6 +137,10 @@ public:
 	void setHp(float val) { hp = val; }
 	void setDamage(float val) { damage = val; }
 	void setFuel(float val) { fuel = val; }
+
+	int getTeamId() {
+		return teamId;
+	}
 
 	void sensorAcquiredRobot(Robot *robot) {
 		sensedRobots.push_back(robot);

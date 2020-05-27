@@ -15,6 +15,7 @@
 #include "Robot.h"
 #include "Rocket.h"
 #include "Base.h"
+#include "Particle.h"
 
 #ifndef ENGINE_H_
 #define ENGINE_H_
@@ -47,6 +48,7 @@ private:
 	std::vector<Robot*> robots;
 	std::vector<Base*> bases;
 	std::vector<Rocket*> rockets;
+	std::vector<Particle*> particles;
 
 	void readMainSettings();
 
@@ -88,6 +90,11 @@ public:
 	void drawBases();
 	void addRocket(Rocket *r);
 	void drawRockets();
+
+	void addParticle(Particle *p);
+	void drawParticles();
+
+	void clearDeadBodies();
 
 	const float getScale() { return scale; }
 	const float getWwidth() { return wwidth; }

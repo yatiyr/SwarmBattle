@@ -28,7 +28,7 @@ class Base : public StaticObject {
 private:
 	float hp;
 	float gunOrientation;
-
+	sf::Color bColor;
 	b2Vec2 enemyBasePos;
 	sf::ConvexShape gunDrawShape;
 	b2Body *gunBody;
@@ -46,7 +46,7 @@ public:
 		hp = 5000;
 		gunOrientation = 0;
 		gunBodyDef.type = b2_dynamicBody;
-
+		bColor = color;
 		drawShape.setPointCount(5);
 		drawShape.setPoint(0, sf::Vector2f(0.f * scale, 0.f * scale));
 		drawShape.setPoint(1, sf::Vector2f(0.f * scale, 30.f * scale));
@@ -79,6 +79,7 @@ public:
 		gunFixtureDef.density = 1.0f;
 		gunFixtureDef.friction = 30.f;
 		gunFixtureDef.isSensor = true;
+		gunFixtureDef.filter.categoryBits = entityCategory::GUN;
 		// collision filterlar gelecek buraya
 		gunBody->CreateFixture(&gunFixtureDef);
 
@@ -150,6 +151,11 @@ public:
 
 	}
 
+	sf::Color getColor() {
+		return bColor;
+	}
+
+
 	b2Body *getGunBody() {
 			return gunBody;
 	}
@@ -173,7 +179,18 @@ public:
 	int getTeamId() {
 		return teamId;
 	}
-	virtual ~Base() {}
+
+	int getHp() {
+		return hp;
+	}
+
+	void setHp(float h) {
+		hp = h;
+	}
+
+	virtual ~Base() {
+		body->GetWorld()->DestroyBody(body);
+	}
 };
 
 #endif /* SRC_INCLUDE_BASE_H_ */

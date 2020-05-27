@@ -10,10 +10,14 @@
 #define ROCKET_H_
 
 class Rocket : public Projectile {
+private:
+	sf::Color bColor;
+
 public:
 	Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : Projectile(window,world,pos,scale,wwidth, wheight,teamId) {
 		hp = 100;
-		damage = 10;
+		damage = 100;
+		bColor = color;
 
 		drawShape.setPointCount(5);
 		drawShape.setPoint(0, sf::Vector2f(0.f * scale, 0.f * scale));
@@ -24,8 +28,10 @@ public:
 		drawShape.setOrigin(1.f * scale,8 * scale);
 		drawShape.setFillColor(color);
 
+//		body->SetEnabled(false);
 		body = worldPointer->CreateBody(&bodyDef);
 		body->SetUserData(this);
+		body->SetEnabled(false);
 
 		b2Vec2 verArray[5];
 		verArray[0].Set(-1.f,-8.f);
@@ -71,6 +77,10 @@ public:
 
 	}
 
+	sf::Color getColor() {
+		return bColor;
+	}
+
 	void handleDrag() {
 		b2Vec2 pointingDirection = body->GetWorldVector(b2Vec2(0.f,0.f));
 		b2Vec2 flightDirection = body->GetLinearVelocity();
@@ -90,6 +100,10 @@ public:
 		drawShape.setPosition(pos.x,pos.y);
 		drawShape.setRotation(-(180/b2_pi) * angle + 180);
 		windowPointer->draw(drawShape);
+	}
+
+	int getTeamId() {
+		return teamId;
 	}
 	virtual ~Rocket() {
 		body->GetWorld()->DestroyBody(body);
