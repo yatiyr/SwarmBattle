@@ -300,12 +300,24 @@ public:
 		b2Vec2 v = baseLoc - pos;
 		float distance = v.Length();
 
-		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x > baseLoc.x && pos.y > -180) {
-			return 1;
+		if(teamId == 0) {
+			if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x > baseLoc.x && pos.y > -180) {
+				return 1;
+			}
+			else {
+				return -1;
+			}
 		}
-		else {
-			return -1;
+		else if(teamId == 1) {
+			if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x < baseLoc.x && pos.y > -180) {
+				return 1;
+			}
+			else {
+				return -1;
+			}
 		}
+
+		return -1;
 
 //		bool res = ((pos.x - patrolCenter.x)*(pos.x - patrolCenter.x) + (pos.y - patrolCenter.y)*(pos.y - patrolCenter.y)) <= patrolRadius*patrolRadius;
 //
