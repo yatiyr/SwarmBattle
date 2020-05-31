@@ -35,7 +35,8 @@ private:
 	b2Vec2 moveTarget;
 	b2Vec2 direction;
 	b2Vec2 lastPos;
-	int maxForce = 50.f;
+	b2Vec2 baseLoc;
+	int maxForce = 150.f;
 	bool spinning;
 	bool orienting;
 	bool patrolling;
@@ -50,6 +51,9 @@ private:
 
 	sf::Color bColor;
 
+	float patrolDistanceMin;
+	float patrolDistanceMax;
+
 	std::vector<Robot*> sensedRobots;
 
 	float dotProduct(b2Vec2 vec1, b2Vec2 vec2) {
@@ -57,12 +61,15 @@ private:
 	}
 
 public:
-	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
+	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
 		id = 0;
 		hp = 500;
 		damage = 2;
 		fuel = 100;
 		bColor = color;
+		baseLoc = bl;
+		patrolDistanceMin = 300;
+		patrolDistanceMax = 400;
 
 		drawShape.setFillColor(color);
 		drawShape.setPointCount(6);
@@ -86,7 +93,7 @@ public:
 		verArrayRobot[5].Set(-0.5f, 0.5f);
 		shape.Set(verArrayRobot,6);
 		fixtureDef.shape = &shape;
-		fixtureDef.density = 1.0f;
+		fixtureDef.density = 2.5f;
 		fixtureDef.friction = 30.f;
 
 		if(teamId == 0) {
@@ -94,14 +101,16 @@ public:
 			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T1;
 			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T1;
 			fixtureDef.filter.maskBits = entityCategory::OTHER |
-										 entityCategory::PARTICLE;
+										 entityCategory::PARTICLE |
+										 entityCategory::ROCKET_T2;
 		}
 		else if(teamId == 1) {
 			fixtureDef.filter.categoryBits = entityCategory::ROBOT_T2;
 			sensorFixtureDef.filter.categoryBits = entityCategory::ROBOT_SENSOR_T2;
 			sensorFixtureDef.filter.maskBits = entityCategory::ROBOT_SENSOR_T2;
 			fixtureDef.filter.maskBits = entityCategory::OTHER |
-										 entityCategory::PARTICLE;
+										 entityCategory::PARTICLE |
+										 entityCategory::ROCKET_T1;
 		}
 
 		body->CreateFixture(&fixtureDef);
@@ -288,14 +297,23 @@ public:
 	float isInArea() {
 
 		b2Vec2 pos = body->GetPosition();
+		b2Vec2 v = baseLoc - pos;
+		float distance = v.Length();
 
-		bool res = ((pos.x - patrolCenter.x)*(pos.x - patrolCenter.x) + (pos.y - patrolCenter.y)*(pos.y - patrolCenter.y)) <= patrolRadius*patrolRadius;
-
-		if(res) {
-			return ((pos.x - patrolCenter.x)*(pos.x - patrolCenter.x) + (pos.y - patrolCenter.y)*(pos.y - patrolCenter.y));
+		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x > baseLoc.x && pos.y > -180) {
+			return 1;
 		}
-		else
+		else {
 			return -1;
+		}
+
+//		bool res = ((pos.x - patrolCenter.x)*(pos.x - patrolCenter.x) + (pos.y - patrolCenter.y)*(pos.y - patrolCenter.y)) <= patrolRadius*patrolRadius;
+//
+//		if(res) {
+//			return ((pos.x - patrolCenter.x)*(pos.x - patrolCenter.x) + (pos.y - patrolCenter.y)*(pos.y - patrolCenter.y));
+//		}
+//		else
+//			return -1;
 
 	}
 
@@ -434,63 +452,40 @@ public:
 		b2Vec2 steerVel = body->GetLinearVelocity();
 		b2Vec2 steer = direction;
 		std::vector<Robot*> robotsInArea = giveRobotsInArea();
-//		b2Vec2 averagePoint;
-//		b2Vec2 averageVel;
-//		if(robotsInArea.size() > 0) {
-////			steer = direction*steerVel.Length();
-//			for(int i=0;i<robotsInArea.size();i++) {
-//				Robot *r = robotsInArea[i];
-//				b2Vec2 p = r->getBody()->GetPosition();
-//				b2Vec2 v = r->getBody()->GetLinearVelocity();
-//
-//				averagePoint += p;
-//				averageVel   += v;
-//
-//				b2Vec2 vec = p - currentPosition;
-//				float dst = vec.Length();
-//				vec.Normalize();
-//				vec.x = (1/dst)*5*vec.x;
-//				vec.y = (1/dst)*5*vec.y;
-//				if(dst < 4.5f) {
-//					moveToDirection(-vec);
-//				}
-//
-//			}
-////			averagePoint.x = averagePoint.x/robotsInArea.size();
-////			averagePoint.y = averagePoint.y/robotsInArea.size();
-////
-////			b2Vec2 pVec = averagePoint - currentPosition;
-////
-////			averageVel  .x = averageVel  .x/robotsInArea.size();
-////			averageVel  .y = averageVel  .y/robotsInArea.size();
-////
-////			averageVel = pVec+averageVel;
-////			averageVel.Normalize();
-////			direction = averageVel;
-////			moveToDirection(direction);
-//
-////			return;
-//
-//
-//		}
 
 		if(isInArea() != -1) {
 			int d = rand()%2;
 			if(d == 0) {
-				direction = turnDirection(0.5);
+				direction = turnDirection(0.6);
 			}
 			else if(d == 1) {
-				direction = turnDirection(-0.5);
+				direction = turnDirection(-0.6);
 			}
 		}
 		else {
-			b2Vec2 dist = patrolCenter - currentPosition;
+			b2Vec2 dist = baseLoc - currentPosition;
+			float d = dist.Length();
 			dist.Normalize();
-			direction = dist;
+			std::cout << currentPosition.y << std::endl;
+			if(currentPosition.y < -40) {
+				direction = b2Vec2(0.f,1.f);
+			}
+			else if(currentPosition.x < baseLoc.x) {
+				direction = b2Vec2(1.f,0.f);
+			}
+			else if(d > patrolDistanceMax) {
+				direction = dist;
+			}
+			else if(d < patrolDistanceMin) {
+				direction = -dist;
+			}
+			else if(d > patrolDistanceMin && d < patrolDistanceMax) {
+				direction = dist;
+			}
+
 		}
 
 		b2Vec2 desiredVelocity;
-//		std::vector<Robot*> robotsInArea = giveRobotsInArea();
 		if(robotsInArea.size() > 0) {
 			desiredVelocity = targetSpeed * direction;
 			desiredVelocity += boidsAlgorithmVelocity();

@@ -199,7 +199,6 @@ void Engine::clearDeadBodies() {
 	for(unsigned int i=0;i<rockets.size();i++) {
 
 		if(rockets[i]->getHp() <= 0) {
-			std::cout << rockets[i]->getHp() << std::endl;
 			for(int j=0;j<288;j++) {
 				float angle = (j / (float)72) * 360 * DEGTORAD;
 				b2Vec2 rayDir(sinf(angle), cosf(angle));
@@ -233,7 +232,6 @@ void Engine::clearDeadBodies() {
 
 	for(unsigned int i=0;i<particles.size();i++) {
 
-		std::cout << particles.size() << std::endl;
 		if(particles[i]->getHp() <= 0) {
 			deadParticles.insert(particles[i]);
 		}
@@ -322,10 +320,10 @@ void Engine::handleBase(Base *b) {
 		}
 		else {
 			if(gunAngle < 0) {
-				gunBody->SetAngularVelocity(0.7f);
+				gunBody->SetAngularVelocity(0.2f);
 			}
 			else if(gunAngle > 0) {
-				gunBody->SetAngularVelocity(-0.7f);
+				gunBody->SetAngularVelocity(-0.2f);
 			}
 		}
 	}
@@ -356,7 +354,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(-0.7f);
+				gunBody->SetAngularVelocity(-0.1f);
 			}
 		}
 		else if(b->getTeamId() == 1) {
@@ -364,7 +362,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(0.7f);
+				gunBody->SetAngularVelocity(0.1f);
 			}
 		}
 
@@ -393,13 +391,16 @@ void Engine::run() {
 
 //	  Rocket *rocket1 = objectFactory->createRocket(b2Vec2(23.f,149.f), sf::Color::Red);
 
-	  Robot *r = objectFactory->createRobot(b2Vec2(10.f,-5.f),sf::Color::Black,0);
-	  robots.push_back(r);
 	  Base *base = objectFactory->createBase(b2Vec2(0.f,-185.f), sf::Color::Blue, 0);
 	  bases.push_back(base);
 
 	  Base *base2 = objectFactory->createBase(b2Vec2(1400.f,-185.f), sf::Color::Red,1);
 	  bases.push_back(base2);
+
+	  for(int k = 0;k<60;k++) {
+		  Robot *r = objectFactory->createRobot(b2Vec2(k*(-3.f),100.f),sf::Color::Blue,0,base->getBody()->GetPosition());
+		  robots.push_back(r);
+	  }
 
 	  // Define the ground body.
 	  b2BodyDef groundBodyDef;

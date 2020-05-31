@@ -24,8 +24,8 @@ Rocket* ObjectFactory::createRocket(b2Vec2 pos, sf::Color color, int teamId) {
 	return result;
 }
 
-Robot* ObjectFactory::createRobot(b2Vec2 pos, sf::Color color, int teamId) {
-	Robot *result = new Robot(window, world, pos, scale, wwidth, wheight, color, teamId);
+Robot* ObjectFactory::createRobot(b2Vec2 pos, sf::Color color, int teamId, b2Vec2 bL) {
+	Robot *result = new Robot(window, world, pos, scale, wwidth, wheight, color, teamId, bL);
 	return result;
 }
 
