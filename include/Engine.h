@@ -24,26 +24,20 @@ class Engine {
 private:
 	sf::RenderWindow *window;
 	sf::Color windowColor;
+	sf::Vector2f oldPos;
 	float scale;
 	float wwidth;
 	float wheight;
-	b2Vec2 gravity;
-
-	float timeStep;
-	int32 velocityIterations;
-	int32 positionIterations;
-
-	sf::Vector2f oldPos;
-	bool moving;
 	float zoom = 1;
-
 	float gunAng1;
 	float gunAng2;
-
+	float timeStep;
+	bool moving;
+	b2Vec2 gravity;
 	b2World *world;
-
+	int32 velocityIterations;
+	int32 positionIterations;
 	ObjectFactory *objectFactory;
-
 	std::vector<Object*> objects;
 	std::vector<Robot*> robots;
 	std::vector<Base*> bases;
@@ -52,25 +46,9 @@ private:
 
 	void readMainSettings();
 
-	void split(std::string const &str, const char delim,
-			std::vector<std::string> &out) {
-		size_t start;
-		size_t end = 0;
-
-		while((start = str.find_first_not_of(delim, end)) != std::string::npos) {
-			end = str.find(delim, start);
-			out.push_back(str.substr(start, end-start));
-		}
-
-	}
-
-	b2Vec2 convertWorldToScreen( const b2Vec2& v) {
-		return b2Vec2( (v.x * scale + wwidth/2) , -v.y * scale + wheight/4);
-	}
-
-	b2Vec2 convertScreenToWorld( const b2Vec2& v) {
-		return b2Vec2( ((v.x - wwidth/2)/scale), -(v.y - wheight/4)/scale);
-	}
+	void split(std::string const &str, const char delim,std::vector<std::string> &out);
+	b2Vec2 convertWorldToScreen( const b2Vec2& v);
+	b2Vec2 convertScreenToWorld( const b2Vec2& v);
 
 	void handleBase(Base *b);
 	void handleBases();
@@ -90,12 +68,9 @@ public:
 	void drawBases();
 	void addRocket(Rocket *r);
 	void drawRockets();
-
 	void addParticle(Particle *p);
 	void drawParticles();
-
 	void clearDeadBodies();
-
 	const float getScale() { return scale; }
 	const float getWwidth() { return wwidth; }
 	const float getWheight() { return wheight; }
@@ -104,10 +79,7 @@ public:
 	const int32 getPositionIterations() { return positionIterations; }
 	sf::RenderWindow *getWindow() { return window; }
 	b2World *getWorld() { return world;}
-
 	void run();
-
-
 };
 
 #endif /* ENGINE_H_ */

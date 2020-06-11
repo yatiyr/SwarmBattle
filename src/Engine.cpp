@@ -92,6 +92,26 @@ void Engine::readMainSettings() {
 
 }
 
+void Engine::split(std::string const &str, const char delim,
+		std::vector<std::string> &out) {
+	size_t start;
+	size_t end = 0;
+
+	while((start = str.find_first_not_of(delim, end)) != std::string::npos) {
+		end = str.find(delim, start);
+		out.push_back(str.substr(start, end-start));
+	}
+
+}
+
+b2Vec2 Engine::convertWorldToScreen( const b2Vec2& v) {
+	return b2Vec2( (v.x * scale + wwidth/2) , -v.y * scale + wheight/4);
+}
+
+b2Vec2 Engine::convertScreenToWorld( const b2Vec2& v) {
+	return b2Vec2( ((v.x - wwidth/2)/scale), -(v.y - wheight/4)/scale);
+}
+
 void Engine::addObject(Object *obj) {
 
 	objects.push_back(obj);
