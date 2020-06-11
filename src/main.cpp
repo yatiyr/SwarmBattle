@@ -1,7 +1,7 @@
 /* Box2D helloworld.cpp combined with SFML */
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include <box2d/box2d.h>
+#include <Box2D/Box2D.h>
 #include "Engine.h"
 
 static const float SCALE = 40.0; //10px = 1 meter

@@ -6,7 +6,7 @@
  */
 
 #include <SFML/Graphics.hpp>
-#include <box2d/box2d.h>
+#include <Box2D/Box2D.h>
 
 #ifndef OBJECT_H_
 #define OBJECT_H_

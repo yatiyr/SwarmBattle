@@ -21,60 +21,65 @@ add_library(sfmlSystem STATIC IMPORTED)
 add_library(sfmlWindow STATIC IMPORTED)
 
 set_target_properties(box2D PROPERTIES 
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libbox2d.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/box2d"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libbox2d.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/Box2D"
 )
 
 set_target_properties(sfmlAudio PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-audio.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-audio.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 set_target_properties(sfmlGraphics PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-graphics.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-graphics.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 set_target_properties(sfmlMain PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-main.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-main.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 set_target_properties(sfmlNetwork PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-network.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-network.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 set_target_properties(sfmlSystem PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-system.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-system.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 set_target_properties(sfmlWindow PROPERTIES
-	IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/libs/libsfml-window.a"
-	INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/includes/SFML"
+	IMPORTED_LOCATION "$ENV{MINGW_LIB_DIR_CMAKE}/libsfml-window.a"
+	INTERFACE_INCLUDE_DIRECTORIES "$ENV{MINGW_INCLUDE_DIR}/SFML"
 )
 
 
 set(SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp"
 			"${CMAKE_SOURCE_DIR}/src/Engine.cpp"
 			"${CMAKE_SOURCE_DIR}/src/ObjectFactory.cpp"
-			"${CMAKE_SOURCE_DIR}/src/include/DynamicObject.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Engine.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Object.h"
-			"${CMAKE_SOURCE_DIR}/src/include/ObjectEnums.h"
-			"${CMAKE_SOURCE_DIR}/src/include/ObjectFactory.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Projectile.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Robot.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Rocket.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Particle.h"
-			"${CMAKE_SOURCE_DIR}/src/include/SensorContactListener.h"
-			"${CMAKE_SOURCE_DIR}/src/include/StaticObject.h"
-			"${CMAKE_SOURCE_DIR}/src/include/Base.h"
+			"${CMAKE_SOURCE_DIR}/include/DynamicObject.h"
+			"${CMAKE_SOURCE_DIR}/include/Engine.h"
+			"${CMAKE_SOURCE_DIR}/include/Object.h"
+			"${CMAKE_SOURCE_DIR}/include/ObjectEnums.h"
+			"${CMAKE_SOURCE_DIR}/include/ObjectFactory.h"
+			"${CMAKE_SOURCE_DIR}/include/Projectile.h"
+			"${CMAKE_SOURCE_DIR}/include/Robot.h"
+			"${CMAKE_SOURCE_DIR}/include/Rocket.h"
+			"${CMAKE_SOURCE_DIR}/include/Particle.h"
+			"${CMAKE_SOURCE_DIR}/include/SensorContactListener.h"
+			"${CMAKE_SOURCE_DIR}/include/StaticObject.h"
+			"${CMAKE_SOURCE_DIR}/include/Base.h"
+)
+
+file(GLOB SRCS 	"${CMAKE_SOURCE_DIR}/src/*.cpp"
+				"${CMAKE_SOURCE_DIR}/src/include/*.h"
 )
 
 add_executable(simulator "${SOURCES}")
-target_include_directories(simulator PRIVATE "${CMAKE_SOURCE_DIR}/src/include")
+target_include_directories(simulator PRIVATE "$ENV{MINGW_INCLUDE_DIR}"
+											 "${CMAKE_SOURCE_DIR}/include")
 target_link_libraries(simulator box2D 
 						 sfmlAudio 
 						 sfmlGraphics 
