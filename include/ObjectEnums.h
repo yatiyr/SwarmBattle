@@ -19,7 +19,9 @@ enum entityCategory {
 	BASE_T1 = 0x0080,
 	BASE_T2 = 0x0100,
 	PARTICLE = 0x0200,
-	GUN = 0x0400
+	GUN = 0x0400,
+	ROBOT_BSENSOR_T1 = 0x0800,
+	ROBOT_BSENSOR_T2 = 0x1000
 };
 
 

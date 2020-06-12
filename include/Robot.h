@@ -29,7 +29,7 @@ class Robot : public DynamicObject {
 private:
 	State state;
 	int id;
-	float maxForce = 150.f;
+	float maxForce = 120.f;
 	float hp;
 	float damage;
 	float fuel;
@@ -49,6 +49,9 @@ private:
 
 	b2CircleShape sensorShape;
 	b2FixtureDef sensorFixtureDef;
+
+	b2CircleShape sensor2Shape;
+	b2FixtureDef sensor2FixtureDef;
 
 	sf::Color bColor;
 

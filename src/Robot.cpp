@@ -7,6 +7,17 @@
 
 #include <Robot.h>
 
+/**
+ * Robots are the agent which perform tasks in an air defence situation. Robots communicate with
+ * each other and move as a swarm. Robots guard their bases and patrol in an area nearby the base.
+ * They have two sensors, first sensor is a small one, which is for detecting their friends so that
+ * they can arrange their velocities in the next time step to move as a swarm. Second sensor is for
+ * detecting incoming rockets. When robots sense incoming rockets, they first compute estimate
+ * their trajectories and if the threat level is high, they immediately lock on the rocket and try
+ * to change their way. After their job is finished, they return back to the base. Their fuel is also
+ * draining during the operations, so they also have to refuel themselves inside the base if they are
+ * out of fuel.
+ */
 Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
 	id = 0;
 	hp = 500;
@@ -14,8 +25,8 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, 
 	fuel = 100;
 	bColor = color;
 	baseLoc = bl;
-	patrolDistanceMin = 300;
-	patrolDistanceMax = 400;
+	patrolDistanceMin = 200;
+	patrolDistanceMax = 250;
 
 	drawShape.setFillColor(color);
 	drawShape.setPointCount(6);
@@ -49,6 +60,11 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, 
 		fixtureDef.filter.maskBits = entityCategory::OTHER |
 									 entityCategory::PARTICLE |
 									 entityCategory::ROCKET_T2;
+
+		sensor2FixtureDef.filter.categoryBits = entityCategory::ROBOT_BSENSOR_T1;
+		sensor2FixtureDef.filter.maskBits = entityCategory::ROCKET_T2;
+
+
 	}
 	else if(teamId == 1) {
 		fixtureDef.filter.categoryBits = entityCategory::ROBOT_T2;
@@ -57,6 +73,9 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, 
 		fixtureDef.filter.maskBits = entityCategory::OTHER |
 									 entityCategory::PARTICLE |
 									 entityCategory::ROCKET_T1;
+
+		sensor2FixtureDef.filter.categoryBits = entityCategory::ROBOT_BSENSOR_T2;
+		sensor2FixtureDef.filter.maskBits = entityCategory::ROCKET_T1;
 	}
 
 	body->CreateFixture(&fixtureDef);
@@ -65,6 +84,11 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, 
 	sensorFixtureDef.shape = &sensorShape;
 	sensorFixtureDef.isSensor = true;
 	body->CreateFixture(&sensorFixtureDef);
+
+	sensor2Shape.m_radius = 700.0f;
+	sensor2FixtureDef.shape = &sensorShape;
+	sensor2FixtureDef.isSensor = true;
+	body->CreateFixture(&sensor2FixtureDef);
 
 
 
@@ -85,6 +109,13 @@ float Robot::dotProduct(b2Vec2 vec1, b2Vec2 vec2) {
 	return vec1.x*vec2.x + vec1.y*vec2.y;
 }
 
+/**
+ * Since robots act in a fully pyhsical 2d environment, they
+ * are under different external forces every time step which
+ * causes unwanted torques so that they start spinning. At
+ * the beginning of each time step, robots regain their balance
+ * using this method.
+ */
 void Robot::orientationControl() {
 	float nextAngle = body->GetAngle() + body->GetAngularVelocity()/60.0;
 	float totalRotation = orientation - nextAngle;
@@ -117,6 +148,10 @@ void Robot::spinControl() {
 
 }
 
+/**
+ * This method creates propulsion for robot to reach
+ * a target point.
+ */
 void Robot::move(b2Vec2 targetPoint) {
 
 	float targetSpeed = 1.f;
@@ -158,10 +193,12 @@ void Robot::move(b2Vec2 targetPoint) {
 	}
 }
 
+/**
+ * This method creates a propulsion along a direction.
+ */
 void Robot::moveToDirection(b2Vec2 direction) {
 
 	// change orientation according to the direction
-//		std::cout<< orientation << std::endl;
 //		orientation = -atan(direction.x/direction.y);
 
 	float targetSpeed = 2.f;
@@ -184,6 +221,10 @@ void Robot::moveToDirection(b2Vec2 direction) {
 
 }
 
+/**
+ * If robot wants to change velocities, it uses this
+ * method.
+ */
 void Robot::changeVelocity(b2Vec2 vel) {
 
 	b2Vec2 currentVelocity = body->GetLinearVelocity();
@@ -203,6 +244,11 @@ void Robot::changeVelocity(b2Vec2 vel) {
 
 }
 
+/**
+ * During patrolling, robots need to change their
+ * directions randomly, this method changes its
+ * turn direction.
+ */
 b2Vec2 Robot::turnDirection(float angle) {
 
 	b2Vec2 result;
@@ -220,6 +266,11 @@ b2Vec2 Robot::turnDirection(float angle) {
 
 }
 
+/**
+ * While patrolling, robots need to know whether they are
+ * in the patrolling zone or not. This method answers their
+ * question.
+ */
 float Robot::isInArea() {
 
 	b2Vec2 pos = body->GetPosition();
@@ -255,6 +306,11 @@ float Robot::isInArea() {
 
 }
 
+/**
+ * For swarm behavior, robots sense other robots and change
+ * their velocities according to them, this method helps them
+ * sensing their robot friends.
+ */
 bool Robot::isRobotInViewField(Robot *robot) {
 
 	b2Vec2 curVel = robot->body->GetLinearVelocity();
@@ -282,6 +338,9 @@ bool Robot::isRobotInViewField(Robot *robot) {
 
 }
 
+/**
+ * Yields nearby friendly robots in an std::vector<Robot*>
+ */
 std::vector<Robot*> Robot::giveRobotsInArea() {
 
 	std::vector<Robot*> result;
@@ -295,7 +354,8 @@ std::vector<Robot*> Robot::giveRobotsInArea() {
 }
 
 
-// Boids algorithm rule methods
+// Boids algorithm rule methods. Cohesion, Separation,
+// Alignment and Boids algorithm velocity
 
 // Rule1 Cohesion: Try to fly towards the center of mass
 // of neighboring robots
@@ -338,6 +398,8 @@ b2Vec2 Robot::separation() {
 
 }
 
+// Rule3 Alignment: Robots align their velocities for a swarm
+// behavior
 b2Vec2 Robot::alignment() {
 
 	b2Vec2 result(0.f,0.f);
@@ -357,6 +419,8 @@ b2Vec2 Robot::alignment() {
 
 }
 
+// This method computes a final velocity for robots by
+// using results of Rule1, Rule2 and Rule3
 b2Vec2 Robot::boidsAlgorithmVelocity() {
 
 	b2Vec2 currentVelocity = body->GetLinearVelocity();
@@ -378,12 +442,15 @@ b2Vec2 Robot::boidsAlgorithmVelocity() {
 
 }
 
+/**
+ * Robots patrol an area if they are in a patrolling state.
+ */
 void Robot::patrolArea() {
 
 	srand(time(NULL));
 	int dir = rand()%2;
 
-	float targetSpeed = 50.f;
+	float targetSpeed = 25.f;
 	b2Vec2 currentPosition = body->GetPosition();
 	b2Vec2 currentVelocity = body->GetLinearVelocity();
 
@@ -404,7 +471,6 @@ void Robot::patrolArea() {
 		b2Vec2 dist = baseLoc - currentPosition;
 		float d = dist.Length();
 		dist.Normalize();
-		std::cout << currentPosition.y << std::endl;
 		if(currentPosition.y < -40) {
 			direction = b2Vec2(0.f,1.f);
 		}
@@ -450,6 +516,9 @@ void Robot::patrolArea() {
 
 }
 
+/**
+ * This is for drawing robot shape with sfml
+ */
 void Robot::draw(float scale, int wwidth, int wheight) {
 
 	b2Vec2 pos = body->GetPosition();
@@ -460,6 +529,9 @@ void Robot::draw(float scale, int wwidth, int wheight) {
 	windowPointer->draw(drawShape);
 }
 
+/**
+ * This method is called in each time step
+ */
 void Robot::act() {
 	orientationControl();
 

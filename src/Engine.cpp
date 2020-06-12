@@ -386,7 +386,6 @@ void Engine::handleBase(Base *b) {
 			}
 		}
 
-//		std::cout << gunPos.x << " " << cos(gunAngle) << " " << (180/b2_pi)*gunAngle << std::endl;
 	}
 }
 
