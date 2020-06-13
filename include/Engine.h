@@ -5,6 +5,9 @@
  *      Author: Eren
  */
 
+#ifndef ENGINE_H_
+#define ENGINE_H_
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include <string>
@@ -16,9 +19,6 @@
 #include "Rocket.h"
 #include "Base.h"
 #include "Particle.h"
-
-#ifndef ENGINE_H_
-#define ENGINE_H_
 
 class Engine {
 private:

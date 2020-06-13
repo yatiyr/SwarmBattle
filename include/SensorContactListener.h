@@ -4,12 +4,12 @@
  *  Created on: Apr 19, 2020
  *      Author: Eren
  */
+#ifndef SENSORCONTACTLISTENER_H_
+#define SENSORCONTACTLISTENER_H_
 
 #include <Box2D/Box2D.h>
 #include "Robot.h"
 
-#ifndef SENSORCONTACTLISTENER_H_
-#define SENSORCONTACTLISTENER_H_
 
 class SensorContactListener : public b2ContactListener {
 

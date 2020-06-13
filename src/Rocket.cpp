@@ -8,10 +8,14 @@
 #include <Rocket.h>
 #include <ObjectEnums.h>
 
+/**
+ * Rockets are fired from bases. They deal damage to them.
+ */
 Rocket::Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : Projectile(window,world,pos,scale,wwidth, wheight,teamId) {
 	hp = 100;
 	damage = 100;
 	bColor = color;
+	robotsIncoming = 0;
 
 	drawShape.setPointCount(5);
 	drawShape.setPoint(0, sf::Vector2f(0.f * scale, 0.f * scale));
@@ -67,6 +71,10 @@ Rocket::Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale
 	body->CreateFixture(&rocketTipFixtureDef);
 }
 
+/**
+ * This method is required for a realistic motion. It handles drag forces acted
+ * on the rocket.
+ */
 void Rocket::handleDrag() {
 	b2Vec2 pointingDirection = body->GetWorldVector(b2Vec2(0.f,0.f));
 	b2Vec2 flightDirection = body->GetLinearVelocity();
@@ -79,6 +87,9 @@ void Rocket::handleDrag() {
 	body->ApplyForce( dragForceMagnitude * -flightDirection, rocketTailPosition, true);
 }
 
+/**
+ * This method is drawing rockets with SFML
+ */
 void Rocket::draw(float scale, int wwidth, int wheight) {
 	b2Vec2 pos = body->GetPosition();
 	float angle = body->GetAngle();
@@ -86,6 +97,18 @@ void Rocket::draw(float scale, int wwidth, int wheight) {
 	drawShape.setPosition(pos.x,pos.y);
 	drawShape.setRotation(-(180/b2_pi) * angle + 180);
 	windowPointer->draw(drawShape);
+}
+
+void Rocket::robotTargeted() {
+	robotsIncoming += 1;
+}
+
+void Rocket::setRobotsIncoming(int val) {
+	robotsIncoming = val;
+}
+
+int Rocket::getRobotsIncoming() {
+	return robotsIncoming;
 }
 
 

@@ -5,11 +5,11 @@
  *      Author: Eren
  */
 
-#include <SFML/Graphics.hpp>
-#include <Box2D/Box2D.h>
-
 #ifndef OBJECT_H_
 #define OBJECT_H_
+
+#include <SFML/Graphics.hpp>
+#include <Box2D/Box2D.h>
 
 // Object is the base class for all entities in the game
 class Object {

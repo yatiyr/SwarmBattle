@@ -5,10 +5,10 @@
  *      Author: Eren
  */
 
-#include "Object.h"
-
 #ifndef STATICOBJECT_H_
 #define STATICOBJECT_H_
+
+#include "Object.h"
 
 class StaticObject : public Object {
 public:

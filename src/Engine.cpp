@@ -417,7 +417,7 @@ void Engine::run() {
 	  bases.push_back(base2);
 
 	  for(int k = 0;k<60;k++) {
-		  Robot *r = objectFactory->createRobot(b2Vec2(k*(-3.f),100.f),sf::Color::Blue,0,base->getBody()->GetPosition());
+		  Robot *r = objectFactory->createRobot(b2Vec2(k*(-3.f),100.f),sf::Color::Blue,0,base->getBody()->GetPosition(), timeStep);
 		  robots.push_back(r);
 	  }
 

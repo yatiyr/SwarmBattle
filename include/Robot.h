@@ -4,17 +4,18 @@
  *  Created on: Mar 26, 2020
  *      Author: Eren
  */
-#include "DynamicObject.h"
 
+#ifndef ROBOT_H_
+#define ROBOT_H_
+
+#include "DynamicObject.h"
 #include <iostream>
 #include <algorithm>
 #include <math.h>
 #include <time.h>
 #include <ObjectEnums.h>
 #include <vector>
-
-#ifndef ROBOT_H_
-#define ROBOT_H_
+#include <Rocket.h>
 
 enum State {
 	Moving,
@@ -47,6 +48,8 @@ private:
 	bool orienting;
 	bool patrolling;
 
+	float timeStep;
+
 	b2CircleShape sensorShape;
 	b2FixtureDef sensorFixtureDef;
 
@@ -56,7 +59,10 @@ private:
 	sf::Color bColor;
 
 
+	Rocket* targetRocket;
+
 	std::vector<Robot*> sensedRobots;
+
 
 	float dotProduct(b2Vec2 vec1, b2Vec2 vec2);
 	float isInArea();
@@ -87,8 +93,10 @@ private:
 
 	b2Vec2 boidsAlgorithmVelocity();
 
+	int checkRocketTrajectory(Rocket *r);
+
 public:
-	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl);
+	Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl);
 
 	sf::Color getColor() {return bColor;}
 	virtual ~Robot() {body->GetWorld()->DestroyBody(body);}
@@ -103,6 +111,8 @@ public:
 	void act();
 	void sensorAcquiredRobot(Robot *robot) {sensedRobots.push_back(robot);}
 	void sensorLostRobot(Robot *robot) {sensedRobots.erase(std::find(sensedRobots.begin(), sensedRobots.end(), robot));}
+
+	void lockRocket(Rocket *r);
 
 };
 

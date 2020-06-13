@@ -5,10 +5,10 @@
  *      Author: Eren
  */
 
-#include "DynamicObject.h"
-
 #ifndef PROJECTILE_H_
 #define PROJECTILE_H_
+
+#include "DynamicObject.h"
 
 class Projectile : public DynamicObject {
 

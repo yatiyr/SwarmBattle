@@ -5,10 +5,10 @@
  *      Author: Eren
  */
 
-#include <Object.h>
-
 #ifndef DYNAMICOBJECT_H_
 #define DYNAMICOBJECT_H_
+
+#include <Object.h>
 
 class DynamicObject : public Object {
 protected:

@@ -18,16 +18,17 @@
  * draining during the operations, so they also have to refuel themselves inside the base if they are
  * out of fuel.
  */
-Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
+Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep, float scale, int wwidth, int wheight, sf::Color color, int teamId, b2Vec2 bl) : DynamicObject(window,world,pos,scale,wwidth,wheight,teamId) {
 	id = 0;
 	hp = 500;
 	damage = 2;
 	fuel = 100;
 	bColor = color;
 	baseLoc = bl;
-	patrolDistanceMin = 200;
-	patrolDistanceMax = 250;
-
+	patrolDistanceMin = 320;
+	patrolDistanceMax = 480;
+	targetRocket = NULL;
+	this->timeStep = timeStep;
 	drawShape.setFillColor(color);
 	drawShape.setPointCount(6);
 
@@ -353,6 +354,16 @@ std::vector<Robot*> Robot::giveRobotsInArea() {
 	return result;
 }
 
+/**
+ * Targets a rocket to destroy
+ */
+void Robot::lockRocket(Rocket *r) {
+
+	if(r->getRobotsIncoming() < 4) {
+
+	}
+}
+
 
 // Boids algorithm rule methods. Cohesion, Separation,
 // Alignment and Boids algorithm velocity
@@ -560,3 +571,42 @@ void Robot::act() {
 
 
 }
+
+/**
+ * Robots estimate the trajectory of incoming robot
+ * and decides whether it is going to explode near
+ * the base. This is for determining for an interception
+ * operation.
+ *
+ * This function returns 0 if trajectory of rocket does
+ * not pose threat and 1 otherwise
+ */
+int Robot::checkRocketTrajectory(Rocket *r) {
+
+	int step = 1;
+	int result = 0;
+
+
+	b2Vec2 rocketPosition = r->getBody()->GetPosition();
+	b2Vec2 rocketVelocity = r->getBody()->GetLinearVelocity();
+	b2Vec2 gravity = body->GetWorld()->GetGravity();
+
+	float dt = 1/timeStep;
+	b2Vec2 dv = dt * rocketVelocity;
+	b2Vec2 da = dt * dt * gravity;
+
+	// Terminal height for check Trajectory
+	int threshold = -140;
+
+	while(rocketPosition.y < - 180) {
+
+		b2Vec2 rocketPosition = rocketPosition + step * dv + 0.5f * (step*step + step) * da;
+
+		// TODO: BURAYI YAP SONRA CONTACT LISTENER YAZACAN!!!
+
+	}
+
+
+
+}
+
