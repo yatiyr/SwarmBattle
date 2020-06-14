@@ -192,40 +192,42 @@ void Robot::move(b2Vec2 targetPoint) {
 
 }
 
-void Robot::intercept(b2Vec2 targetPoint) {
-
-	float targetSpeed = 300.f;
-
-	b2Vec2 direction = targetPoint - body->GetPosition();
-	float distanceToTravel = direction.Normalize();
-	float speedToUse = targetSpeed;
-
-	float distancePerTimeStep = speedToUse / 240.0f;
-	if (distancePerTimeStep > distanceToTravel)
-		speedToUse *= (distanceToTravel / distancePerTimeStep);
-
-	b2Vec2 desiredVelocity = speedToUse * direction;
-	b2Vec2 changeInVelocity = desiredVelocity - body->GetLinearVelocity();
+void Robot::intercept(Rocket *r) {
 
 
-	float mF = 240;
+	if(targetRocket != NULL) {
+		b2Vec2 targetPoint = targetRocket->getBody()->GetPosition();
 
-	b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
-	changeInVelocity.Normalize();
-	b2Vec2 forceMax = mF*changeInVelocity;
+		float targetSpeed = 3000.f;
+		body->SetLinearDamping(0);
 
-	b2Vec2 dir = targetPoint-body->GetPosition();
-	float dd = dir.Length();
-	if(dd < 1) {
-		body->SetLinearVelocity(b2Vec2(0,0));
-	}
-	else {
+		b2Vec2 direction = targetPoint - body->GetPosition();
+		float distanceToTravel = direction.Normalize();
+		float speedToUse = targetSpeed;
+
+		float distancePerTimeStep = speedToUse / 240.0f;
+		if (distancePerTimeStep > distanceToTravel)
+			speedToUse *= (distanceToTravel / distancePerTimeStep);
+
+		b2Vec2 desiredVelocity = speedToUse * direction;
+		b2Vec2 changeInVelocity = desiredVelocity - body->GetLinearVelocity();
+
+		b2Vec2 vel = body->GetLinearVelocity();
+
+		float mF = 440;
+
+		b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
+		changeInVelocity.Normalize();
+		b2Vec2 forceMax = mF*changeInVelocity;
+
+		b2Vec2 dir = targetPoint-body->GetPosition();
 		if(force.Length() > forceMax.Length()) {
-			body->ApplyForce(forceMax, body->GetWorldCenter(), true);
+			body->ApplyLinearImpulse(forceMax, body->GetWorldCenter(), true);
 		}
 		else if(force.Length() <= forceMax.Length()){
-			body->ApplyForce(force, body->GetWorldCenter(), true);
+			body->ApplyLinearImpulse(force, body->GetWorldCenter(), true);
 		}
+
 	}
 
 	fuel -= 0.05;
@@ -397,7 +399,7 @@ std::vector<Robot*> Robot::giveRobotsInArea() {
  */
 void Robot::lockRocket(Rocket *r) {
 
-	if(targetRocket != NULL) {
+	if(targetRocket == NULL) {
 		if(r->getRobotsIncoming() < 4) {
 
 			// If rocket trajectory is dangerous
@@ -609,7 +611,7 @@ void Robot::act() {
 		// TODO: BURASI DOLACAK
 		orientationControl();
 		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
-		intercept(targetRocket->getBody()->GetPosition());
+		intercept(targetRocket);
 	}
 	else if(state == State::Refueling) {
 		orientationControl();

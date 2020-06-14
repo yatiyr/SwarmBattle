@@ -76,7 +76,7 @@ private:
 	void changeVelocity(b2Vec2 vel);
 	void patrolArea();
 	bool isRobotInViewField(Robot *robot);
-	void intercept(b2Vec2 targetPoint);
+	void intercept(Rocket *r);
 	std::vector<Robot*> giveRobotsInArea();
 
 	b2Vec2 turnDirection(float angle);
