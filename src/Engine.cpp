@@ -340,10 +340,10 @@ void Engine::handleBase(Base *b) {
 		}
 		else {
 			if(gunAngle < 0) {
-				gunBody->SetAngularVelocity(0.3f);
+				gunBody->SetAngularVelocity(0.9f);
 			}
 			else if(gunAngle > 0) {
-				gunBody->SetAngularVelocity(-0.3f);
+				gunBody->SetAngularVelocity(-0.9f);
 			}
 		}
 	}
@@ -374,7 +374,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(-0.3f);
+				gunBody->SetAngularVelocity(-0.6f);
 			}
 		}
 		else if(b->getTeamId() == 1) {
@@ -382,7 +382,7 @@ void Engine::handleBase(Base *b) {
 				b->setState(BState::GunFiring);
 			}
 			else {
-				gunBody->SetAngularVelocity(0.3f);
+				gunBody->SetAngularVelocity(0.6f);
 			}
 		}
 
@@ -416,10 +416,14 @@ void Engine::run() {
 	  Base *base2 = objectFactory->createBase(b2Vec2(1400.f,-185.f), sf::Color::Red,1);
 	  bases.push_back(base2);
 
-	  for(int k = 0;k<20;k++) {
+	  for(int k = 0;k<60;k++) {
 		  Robot *r = objectFactory->createRobot(b2Vec2(k*(-3.f),100.f),sf::Color::Blue,0,base->getBody()->GetPosition(), timeStep);
+//		  Robot *r2 = objectFactory->createRobot(b2Vec2((k*3.f)+1400,100.f),sf::Color::Red,0,base2->getBody()->GetPosition(), timeStep);
 		  robots.push_back(r);
+//		  robots.push_back(r2);
 	  }
+
+
 
 	  // Define the ground body.
 	  b2BodyDef groundBodyDef;
@@ -495,6 +499,7 @@ void Engine::run() {
 		world->Step(timeStep, velocityIterations, positionIterations);
 
 
+
 	    // get the position and angle of the ground
 	    b2Vec2 pos = groundBody->GetPosition();
 	    float angle = groundBody->GetAngle();
@@ -507,6 +512,16 @@ void Engine::run() {
 	    drawBases();
 	    drawRockets();
 	    drawParticles();
+
+	    if(base->getHp() <= 0) {
+	    	std::cout << "Base2 hp: " << base2->getHp() << std::endl;
+	    	std::cout << "Team 2 WON!" << std::endl;
+	    	break;
+	    }
+	    else if(base2->getHp() <= 0) {
+	    	std::cout << "Team 1 WON!. THEIR ROBOTS DID A GREAT JOB!!!" << std::endl;
+	    	break;
+	    }
 
 
 		window->display();

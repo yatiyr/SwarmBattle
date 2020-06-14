@@ -25,8 +25,8 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep
 	fuel = 100;
 	bColor = color;
 	baseLoc = bl;
-	patrolDistanceMin = 320;
-	patrolDistanceMax = 480;
+	patrolDistanceMin = 220;
+	patrolDistanceMax = 330;
 	targetRocket = NULL;
 	this->timeStep = timeStep;
 	drawShape.setFillColor(color);
@@ -51,7 +51,7 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep
 	verArrayRobot[5].Set(-0.5f, 0.5f);
 	shape.Set(verArrayRobot,6);
 	fixtureDef.shape = &shape;
-	fixtureDef.density = 2.5f;
+	fixtureDef.density = 6.5f;
 	fixtureDef.friction = 30.f;
 
 	if(teamId == 0) {
@@ -158,6 +158,9 @@ void Robot::move(b2Vec2 targetPoint) {
 
 	float targetSpeed = 30.f;
 
+	if(state == State::Returning)
+		targetSpeed = 90.f;
+
 	b2Vec2 direction = targetPoint - body->GetPosition();
 	float distanceToTravel = direction.Normalize();
 	float speedToUse = targetSpeed;
@@ -198,7 +201,7 @@ void Robot::intercept(Rocket *r) {
 	if(targetRocket != NULL) {
 		b2Vec2 targetPoint = targetRocket->getBody()->GetPosition();
 
-		float targetSpeed = 3000.f;
+		float targetSpeed = 4000.f;
 		body->SetLinearDamping(0);
 
 		b2Vec2 direction = targetPoint - body->GetPosition();
@@ -219,6 +222,17 @@ void Robot::intercept(Rocket *r) {
 		b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
 		changeInVelocity.Normalize();
 		b2Vec2 forceMax = mF*changeInVelocity;
+
+		b2Vec2 targetPos = targetRocket->getBody()->GetPosition();
+		b2Vec2 distVec = body->GetPosition() - targetPos;
+		float dist = distVec.Length();
+
+		if(dist <= 5) {
+			targetRocket->setRobotsIncoming(targetRocket->getRobotsIncoming() - 1);
+			targetRocket = NULL;
+			state = State::Returning;
+			return;
+		}
 
 		b2Vec2 dir = targetPoint-body->GetPosition();
 		if(force.Length() > forceMax.Length()) {
@@ -608,7 +622,6 @@ void Robot::act() {
 
 	}
 	else if(state == State::Chasing) {
-		// TODO: BURASI DOLACAK
 		orientationControl();
 		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
 		intercept(targetRocket);
@@ -625,7 +638,6 @@ void Robot::act() {
 			move(baseLoc);
 			refuel();
 		}
-		// TODO: BURASI DOLACAK
 	}
 	else if(state == State::Steady) {
 
@@ -691,7 +703,7 @@ int Robot::checkRocketTrajectory(Rocket *r) {
 		b2Vec2 distanceVec = baseLoc - pos;
 		float dist = distanceVec.Length();
 
-		if(dist <= 80) {
+		if(dist <= 50) {
 			std::cout <<pos.x<<" "<<pos.y<<" "<<dist <<std::endl;
 			result = 1;
 			break;

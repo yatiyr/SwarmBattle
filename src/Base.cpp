@@ -8,7 +8,7 @@
 #include <Base.h>
 
 Base::Base(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale, int wwidth, int wheight, sf::Color color, int teamId) : StaticObject(window,world,pos,scale,wwidth,wheight,teamId) {
-	hp = 5000;
+	hp = 1000;
 	gunOrientation = 0;
 	gunBodyDef.type = b2_dynamicBody;
 	bColor = color;
