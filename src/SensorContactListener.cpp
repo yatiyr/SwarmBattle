@@ -30,6 +30,42 @@ bool getSensedRobot(b2Contact* contact, Robot*& sensor1, Robot*& sensor2) {
 
 }
 
+bool senseRocket(b2Contact* contact, Robot*& robot, Rocket*& rocket) {
+
+	b2Fixture *fixtureA = contact->GetFixtureA();
+	b2Fixture *fixtureB = contact->GetFixtureB();
+
+	int cbA = fixtureA->GetFilterData().categoryBits;
+	int cbB = fixtureB->GetFilterData().categoryBits;
+
+	if(!(((cbA == entityCategory::ROBOT_BSENSOR_T1 || cbA == entityCategory::ROBOT_BSENSOR_T2 ) && (cbB == entityCategory::ROCKET_T2 || cbB == entityCategory::ROCKET_T1)) ||
+	  ((cbB == entityCategory::ROBOT_BSENSOR_T1 || cbB == entityCategory::ROBOT_BSENSOR_T2) && (cbA == entityCategory::ROCKET_T2 || cbA == entityCategory::ROCKET_T1)))) {
+		return false;
+	}
+
+
+	if(fixtureA->IsSensor()) {
+
+		Robot* entityA = static_cast<Robot*>(fixtureA->GetBody()->GetUserData());
+		Rocket* entityB = static_cast<Rocket*>(fixtureA->GetBody()->GetUserData());
+
+		robot = entityA;
+		rocket = entityB;
+	}
+	else if(fixtureB->IsSensor()) {
+
+		Robot* entityB = static_cast<Robot*>(fixtureB->GetBody()->GetUserData());
+		Rocket* entityA = static_cast<Rocket*>(fixtureA->GetBody()->GetUserData());
+
+		robot = entityB;
+		rocket = entityA;
+	}
+
+	return true;
+
+
+}
+
 bool getDynamicObjectCollision(b2Contact* contact, DynamicObject*& obj1, DynamicObject*& obj2) {
 	b2Fixture* fixtureA = contact->GetFixtureA();
 	b2Fixture* fixtureB = contact->GetFixtureB();
@@ -132,7 +168,7 @@ bool getDynamicObjectBaseCollision(b2Contact* contact, DynamicObject*& obj, Base
 		cbA == entityCategory::PARTICLE) && (cbB == entityCategory::BASE_T1 || cbB == entityCategory::BASE_T2)) {
 
 		DynamicObject* entityA = static_cast<DynamicObject*>(fixtureA->GetBody()->GetUserData());
-		Base* 		   entityB = static_cast<Base*>(fixtureA->GetBody()->GetUserData());
+		Base* 		   entityB = static_cast<Base*>(fixtureB->GetBody()->GetUserData());
 		obj = entityA;
 		base = entityB;
 	}
@@ -157,13 +193,14 @@ void SensorContactListener::BeginContact(b2Contact* contact) {
 	DynamicObject* obj1;
 	DynamicObject* obj2;
 	Base* base;
+	Rocket* roc;
+	Robot* rob;
+
 	if(getSensedRobot(contact, sensor1, sensor2)) {
 		sensor1->sensorAcquiredRobot(sensor2);
 		sensor2->sensorAcquiredRobot(sensor1);
 	}
 	else if(getDynamicObjectCollision(contact, obj1, obj2)) {
-		int cb1 = contact->GetFixtureA()->GetFilterData().categoryBits;
-		int cb2 = contact->GetFixtureB()->GetFilterData().categoryBits;
 
 		obj1->setHp(obj1->getHp() - obj2->getDamage());
 		obj2->setHp(obj2->getHp() - obj1->getDamage());
@@ -177,6 +214,9 @@ void SensorContactListener::BeginContact(b2Contact* contact) {
 
 		obj1->setHp(obj1->getHp() - 100);
 		base->setHp(base->getHp() - obj1->getDamage());
+	}
+	else if(senseRocket(contact, rob, roc)) {
+		rob->lockRocket(roc);
 	}
 
 }

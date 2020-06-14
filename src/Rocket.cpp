@@ -47,6 +47,7 @@ Rocket::Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale
 									 entityCategory::ROCKET_T2 |
 									 entityCategory::ROBOT_T2 |
 									 entityCategory::PARTICLE |
+									 entityCategory::ROBOT_BSENSOR_T2 |
 									 entityCategory::OTHER;
 	}
 	else if(teamId == 1) {
@@ -55,6 +56,7 @@ Rocket::Rocket(sf::RenderWindow *window, b2World *world, b2Vec2 pos, float scale
 									 entityCategory::ROCKET_T1 |
 									 entityCategory::ROBOT_T1 |
 									 entityCategory::PARTICLE |
+									 entityCategory::ROBOT_BSENSOR_T1 |
 									 entityCategory::OTHER;
 	}
 	body->CreateFixture(&fixtureDef);

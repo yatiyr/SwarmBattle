@@ -87,7 +87,7 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep
 	body->CreateFixture(&sensorFixtureDef);
 
 	sensor2Shape.m_radius = 700.0f;
-	sensor2FixtureDef.shape = &sensorShape;
+	sensor2FixtureDef.shape = &sensor2Shape;
 	sensor2FixtureDef.isSensor = true;
 	body->CreateFixture(&sensor2FixtureDef);
 
@@ -171,6 +171,7 @@ void Robot::move(b2Vec2 targetPoint) {
 
 
 	b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
+	changeInVelocity.Normalize();
 	b2Vec2 forceMax = maxForce*changeInVelocity;
 
 	b2Vec2 dir = targetPoint-body->GetPosition();
@@ -188,6 +189,46 @@ void Robot::move(b2Vec2 targetPoint) {
 	}
 
 
+
+}
+
+void Robot::intercept(b2Vec2 targetPoint) {
+
+	float targetSpeed = 300.f;
+
+	b2Vec2 direction = targetPoint - body->GetPosition();
+	float distanceToTravel = direction.Normalize();
+	float speedToUse = targetSpeed;
+
+	float distancePerTimeStep = speedToUse / 240.0f;
+	if (distancePerTimeStep > distanceToTravel)
+		speedToUse *= (distanceToTravel / distancePerTimeStep);
+
+	b2Vec2 desiredVelocity = speedToUse * direction;
+	b2Vec2 changeInVelocity = desiredVelocity - body->GetLinearVelocity();
+
+
+	float mF = 240;
+
+	b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
+	changeInVelocity.Normalize();
+	b2Vec2 forceMax = mF*changeInVelocity;
+
+	b2Vec2 dir = targetPoint-body->GetPosition();
+	float dd = dir.Length();
+	if(dd < 1) {
+		body->SetLinearVelocity(b2Vec2(0,0));
+	}
+	else {
+		if(force.Length() > forceMax.Length()) {
+			body->ApplyForce(forceMax, body->GetWorldCenter(), true);
+		}
+		else if(force.Length() <= forceMax.Length()){
+			body->ApplyForce(force, body->GetWorldCenter(), true);
+		}
+	}
+
+	fuel -= 0.05;
 
 }
 
@@ -276,7 +317,7 @@ float Robot::isInArea() {
 	float distance = v.Length();
 
 	if(teamId == 0) {
-		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x > baseLoc.x && pos.y > -180) {
+		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x >= baseLoc.x && pos.y > -180) {
 			return 1;
 		}
 		else {
@@ -284,7 +325,7 @@ float Robot::isInArea() {
 		}
 	}
 	else if(teamId == 1) {
-		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x < baseLoc.x && pos.y > -180) {
+		if(distance < patrolDistanceMax && distance > patrolDistanceMin && pos.x <= baseLoc.x && pos.y > -180) {
 			return 1;
 		}
 		else {
@@ -356,12 +397,14 @@ std::vector<Robot*> Robot::giveRobotsInArea() {
  */
 void Robot::lockRocket(Rocket *r) {
 
-	if(r->getRobotsIncoming() < 4) {
+	if(targetRocket != NULL) {
+		if(r->getRobotsIncoming() < 4) {
 
-		// If rocket trajectory is dangerous
-		if(checkRocketTrajectory(r) == 1) {
-			r->setRobotsIncoming(r->getRobotsIncoming() + 1);
-			targetRocket = r;
+			// If rocket trajectory is dangerous
+			if(checkRocketTrajectory(r) == 1) {
+				r->setRobotsIncoming(r->getRobotsIncoming() + 1);
+				targetRocket = r;
+			}
 		}
 	}
 }
@@ -551,18 +594,22 @@ void Robot::act() {
 		state = State::Refueling;
 	}
 
+	if(targetRocket != NULL) {
+		state = State::Chasing;
+	}
+
 	if(state == State::Patrolling) {
 		orientationControl();
 		patrolArea();
 		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
 
-		if(targetRocket != NULL) {
-			state == State::Chasing;
-		}
 
 	}
 	else if(state == State::Chasing) {
 		// TODO: BURASI DOLACAK
+		orientationControl();
+		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
+		intercept(targetRocket->getBody()->GetPosition());
 	}
 	else if(state == State::Refueling) {
 		orientationControl();
@@ -579,6 +626,15 @@ void Robot::act() {
 		// TODO: BURASI DOLACAK
 	}
 	else if(state == State::Steady) {
+
+	}
+	else if(state == State::Returning) {
+		move(baseLoc);
+		b2Vec2 distanceVec = baseLoc - body->GetPosition();
+		float dis = distanceVec.Length();
+		if(dis < 50) {
+			state = State::Patrolling;
+		}
 
 	}
 
@@ -613,25 +669,34 @@ int Robot::checkRocketTrajectory(Rocket *r) {
 
 	b2Vec2 rocketPosition = r->getBody()->GetPosition();
 	b2Vec2 rocketVelocity = r->getBody()->GetLinearVelocity();
-	b2Vec2 gravity = body->GetWorld()->GetGravity();
+	b2Vec2 gravity = r->getBody()->GetWorld()->GetGravity();
 
-	float dt = 1/timeStep;
+	float dt = timeStep;
 	b2Vec2 dv = dt * rocketVelocity;
 	b2Vec2 da = dt * dt * gravity;
 
 	// Terminal height for check Trajectory
 	int threshold = -140;
 
-	while(rocketPosition.y <= - 180) {
+	int m = 0;
+	b2Vec2 pos(100000,100000);
 
-		b2Vec2 rocketPosition = rocketPosition + step * dv + 0.5f * (step*step + step) * da;
+	while(pos.y >= -180) {
 
-		b2Vec2 distanceVec = baseLoc - rocketPosition;
+		float s = step;
+		pos = rocketPosition + s * dv + 0.5f * (s*s + s) * da;
+
+		b2Vec2 distanceVec = baseLoc - pos;
 		float dist = distanceVec.Length();
-		if(dist <= 50) {
+
+		if(dist <= 80) {
+			std::cout <<pos.x<<" "<<pos.y<<" "<<dist <<std::endl;
 			result = 1;
 			break;
 		}
+
+		step++;
+		m++;
 
 	}
 

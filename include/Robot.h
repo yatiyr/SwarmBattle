@@ -21,7 +21,8 @@ enum State {
 	Patrolling,
 	Steady,
 	Refueling,
-	Chasing
+	Chasing,
+	Returning
 };
 
 #define EPSILON 0.0005
@@ -75,6 +76,7 @@ private:
 	void changeVelocity(b2Vec2 vel);
 	void patrolArea();
 	bool isRobotInViewField(Robot *robot);
+	void intercept(b2Vec2 targetPoint);
 	std::vector<Robot*> giveRobotsInArea();
 
 	b2Vec2 turnDirection(float angle);
