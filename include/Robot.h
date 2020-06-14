@@ -18,9 +18,10 @@
 #include <Rocket.h>
 
 enum State {
-	Moving,
+	Patrolling,
 	Steady,
-	Patrolling
+	Refueling,
+	Chasing
 };
 
 #define EPSILON 0.0005
@@ -30,7 +31,7 @@ class Robot : public DynamicObject {
 private:
 	State state;
 	int id;
-	float maxForce = 120.f;
+	float maxForce = 240.f;
 	float hp;
 	float damage;
 	float fuel;
@@ -47,6 +48,7 @@ private:
 	bool spinning;
 	bool orienting;
 	bool patrolling;
+	bool returning;
 
 	float timeStep;
 
@@ -111,8 +113,9 @@ public:
 	void act();
 	void sensorAcquiredRobot(Robot *robot) {sensedRobots.push_back(robot);}
 	void sensorLostRobot(Robot *robot) {sensedRobots.erase(std::find(sensedRobots.begin(), sensedRobots.end(), robot));}
-
+	void refuel();
 	void lockRocket(Rocket *r);
+	Rocket *getTargetRocket();
 
 };
 

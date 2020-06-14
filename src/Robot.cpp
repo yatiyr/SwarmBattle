@@ -94,9 +94,10 @@ Robot::Robot(sf::RenderWindow *window, b2World *world, b2Vec2 pos,float timeStep
 
 
 
-	state = State::Steady;
+	state = State::Patrolling;
 	spinning = false;
 	orienting = false;
+	returning = false;
 	orientation = 0;
 	patrolling = true;
 	direction.x = 0.0f;
@@ -155,7 +156,7 @@ void Robot::spinControl() {
  */
 void Robot::move(b2Vec2 targetPoint) {
 
-	float targetSpeed = 1.f;
+	float targetSpeed = 30.f;
 
 	b2Vec2 direction = targetPoint - body->GetPosition();
 	float distanceToTravel = direction.Normalize();
@@ -168,30 +169,26 @@ void Robot::move(b2Vec2 targetPoint) {
 	b2Vec2 desiredVelocity = speedToUse * direction;
 	b2Vec2 changeInVelocity = desiredVelocity - body->GetLinearVelocity();
 
-	b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
-	b2Vec2 forceMax = maxForce*direction;
 
-	float dist = (targetPoint - body->GetPosition()).Length();
-	if(dist < EPSILON) {
-		body->SetLinearVelocity(b2Vec2(0.f,0.f));
-		state = State::Moving;
-		return;
+	b2Vec2 force = body->GetMass() * 240.0f * changeInVelocity;
+	b2Vec2 forceMax = maxForce*changeInVelocity;
+
+	b2Vec2 dir = targetPoint-body->GetPosition();
+	float dd = dir.Length();
+	if(dd < 1) {
+		body->SetLinearVelocity(b2Vec2(0,0));
 	}
 	else {
-		if(force.Length() > forceMax.Length() && dotProduct(direction, body->GetLinearVelocity()) < 0) {
-			b2Vec2 velDir =  -body->GetLinearVelocity();
-			float speed = velDir.Normalize();
-			b2Vec2 stopForce = maxForce*velDir;
-			body->ApplyForce(stopForce, body->GetWorldCenter(), true);
-		}
-		else if(force.Length() > forceMax.Length() && dotProduct(direction, body->GetLinearVelocity()) >= 0) {
+		if(force.Length() > forceMax.Length()) {
 			body->ApplyForce(forceMax, body->GetWorldCenter(), true);
 		}
-		else if(force.Length() <= forceMax.Length() && dotProduct(direction, body->GetLinearVelocity()) >= 0) {
-
+		else if(force.Length() <= forceMax.Length()){
 			body->ApplyForce(force, body->GetWorldCenter(), true);
 		}
 	}
+
+
+
 }
 
 /**
@@ -361,6 +358,11 @@ void Robot::lockRocket(Rocket *r) {
 
 	if(r->getRobotsIncoming() < 4) {
 
+		// If rocket trajectory is dangerous
+		if(checkRocketTrajectory(r) == 1) {
+			r->setRobotsIncoming(r->getRobotsIncoming() + 1);
+			targetRocket = r;
+		}
 	}
 }
 
@@ -524,7 +526,7 @@ void Robot::patrolArea() {
 		body->ApplyForce(force, body->GetWorldCenter(), true);
 	}
 
-
+	fuel -= 0.02;
 }
 
 /**
@@ -544,32 +546,54 @@ void Robot::draw(float scale, int wwidth, int wheight) {
  * This method is called in each time step
  */
 void Robot::act() {
-	orientationControl();
 
-	body->GetMass()*body->GetWorld()->GetGravity();
-	body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
-	if(state == State::Moving) {
+	if(fuel < 10) {
+		state = State::Refueling;
+	}
 
-		if(patrolling) {
-			patrolCenter.x = 0.f;
-			patrolCenter.y = 400.f;
-			patrolRadius = 300.f;
-			patrolArea();
-//				changeVelocity(b2Vec2(1.f,1.f));
+	if(state == State::Patrolling) {
+		orientationControl();
+		patrolArea();
+		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
+
+		if(targetRocket != NULL) {
+			state == State::Chasing;
+		}
+
+	}
+	else if(state == State::Chasing) {
+		// TODO: BURASI DOLACAK
+	}
+	else if(state == State::Refueling) {
+		orientationControl();
+		body->ApplyForceToCenter(-body->GetMass()*body->GetWorld()->GetGravity(), true);
+		b2Vec2 dist = body->GetPosition() - baseLoc;
+		float d = dist.Length();
+		if(d > 50) {
+			move(baseLoc);
 		}
 		else {
-		b2Vec2 targ(199.0f,0.f);
-		b2Vec2 dir = targ - body->GetPosition();
-		dir.Normalize();
-	 	changeVelocity(dir);
-
+			move(baseLoc);
+			refuel();
 		}
+		// TODO: BURASI DOLACAK
 	}
 	else if(state == State::Steady) {
-		move(body->GetPosition());
+
 	}
 
 
+}
+
+void Robot::refuel() {
+	fuel += 0.3;
+	if(fuel > 95) {
+		state = State::Patrolling;
+	}
+}
+
+Rocket *Robot::getTargetRocket() {
+	return targetRocket;
 }
 
 /**
@@ -598,14 +622,20 @@ int Robot::checkRocketTrajectory(Rocket *r) {
 	// Terminal height for check Trajectory
 	int threshold = -140;
 
-	while(rocketPosition.y < - 180) {
+	while(rocketPosition.y <= - 180) {
 
 		b2Vec2 rocketPosition = rocketPosition + step * dv + 0.5f * (step*step + step) * da;
 
-		// TODO: BURAYI YAP SONRA CONTACT LISTENER YAZACAN!!!
+		b2Vec2 distanceVec = baseLoc - rocketPosition;
+		float dist = distanceVec.Length();
+		if(dist <= 50) {
+			result = 1;
+			break;
+		}
 
 	}
 
+	return result;
 
 
 }
