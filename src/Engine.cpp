@@ -186,6 +186,7 @@ void Engine::handleRocketDrags() {
 	}
 }
 
+// This method deletes dead entities
 void Engine::clearDeadBodies() {
 
 	std::set<Robot*> deadRobots;
@@ -304,6 +305,9 @@ void Engine::clearDeadBodies() {
 		}
 	}
 }
+
+// Base fire up events are implemented in this
+// function
 void Engine::handleBase(Base *b) {
 	BState gunState = b->getState();
 	if(gunState == BState::GunSteady) {

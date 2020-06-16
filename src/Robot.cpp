@@ -195,6 +195,9 @@ void Robot::move(b2Vec2 targetPoint) {
 
 }
 
+// If a robot has a target rocket,
+// it chases it by creating propulsion
+// towards it in each time step
 void Robot::intercept(Rocket *r) {
 
 
